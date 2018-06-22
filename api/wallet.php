@@ -1,6 +1,7 @@
 <?php
 
 require (__DIR__ . "/../../php-common/cryption/crypto.php");
+require (__DIR__ . "/../../php-common/cryption/sign.php");
 
 interface WalletApi {
     // 注册钱包
@@ -8,7 +9,7 @@ interface WalletApi {
     // 获取钱包的基本信息
   //  function getWalletInfo();
     // 创建数字资产
-   function createPOE();
+   function createPOE($poe_body,$sign_body,&$response);
     // 上传数字资产凭证
    // function uploadPOEFile();
     // 发行资产
@@ -26,6 +27,7 @@ class WalletClient implements WalletApi {
     var $did;
     var $curl_client;
     var $ecc_client;
+    var $sign_client;
     var $header;
 
     function __construct($host,$api_key,$cert_path,$did){
@@ -35,6 +37,7 @@ class WalletClient implements WalletApi {
         $this->did = $did;
         $this->curl_client = curl_init();
         $this->ecc_client = new encrypt($cert_path,$api_key);
+        $this->sign_client = NULL;
 
         // 设置http请求头
         $header = array();
@@ -46,12 +49,12 @@ class WalletClient implements WalletApi {
     }
 
     function register($register_body,&$response){
-        $this->ecc_client->sign_and_encrypt($register_body,$data);
+        $this->ecc_client->signAndEncrypt($register_body,$request);
         if ($data == ""){
             return -1;
         }
         curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $data);
+        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/wallet/register";
         curl_setopt ($this->curl_client, CURLOPT_URL, $url);
         $res = curl_exec($this->curl_client);
@@ -60,7 +63,7 @@ class WalletClient implements WalletApi {
             return -1;
         }
 
-        $this->ecc_client->decrypt_and_verify($res,$data);
+        $this->ecc_client->DecryptAndVerify($res,$data);
         if (empty($data)){
             echo "decrypt_and_verify error" , "\n"; 
             return -2;
@@ -70,8 +73,40 @@ class WalletClient implements WalletApi {
         return 0;
     }
 
-    function createPOE(){
+    function createPOE($poe_body,$sign_body,&$response) {
+        // 创建ed25519对象
+        $this->sign_client = new Signature($sign_body);
 
+        // 签名
+        $this->sign_client->sign($poe_body,$signed_data);
+
+        // 销毁签名对象
+        unset($this->sign_client); 
+        $this->sign_client = NULL;
+
+        // 签名返回的数据，交给ecc去加密签名
+        $this->ecc_client->signAndEncrypt($signed_data,$request);
+
+        // 发送请求
+        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        $url = $this->host . "/wallet-ng/v1/poe/create";
+        curl_setopt ($this->curl_client, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_client);
+        if ($res == ""){
+            echo "curl error" ,"\n";
+            return -1;
+        }
+
+        $this->ecc_client->decryptAndVerify($res,$data);
+        if (empty($data)){
+            echo "decrypt_and_verify error" , "\n"; 
+            return -2;
+        }
+
+        $response = $data;
+        return 0;
     }
 
     /*
