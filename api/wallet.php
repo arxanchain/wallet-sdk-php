@@ -7,7 +7,10 @@ interface WalletApi {
     // 注册钱包
     function register($register_body,&$response);
     // 获取钱包的基本信息
-    //function getWalletInfo();
+    function getWalletInfo($did,&$response);
+    // 获取钱包余额
+    function getWalletBalance($id,&$response);
+    //
     // 创建数字资产
     function createPOE($poe_body,$sign_body,&$response);
     // 上传数字资产凭证
@@ -21,7 +24,7 @@ interface WalletApi {
     // 转移ctoken
     function transferCToken($transfer_body,$sign_body,&$response);
     // 交易历史
-    function tranfserTxn($id,$mode,$response);
+    function tranfserTxn($id,$mode,&$response);
 }
 
 class WalletClient implements WalletApi {
@@ -316,9 +319,9 @@ class WalletClient implements WalletApi {
         return 0;
     }
 
-    function tranfserTxn($id,$type,$response){
+    function tranfserTxn($did,$type,&$response){
         //发送get请求
-        $url = $this->host . "/wallet-ng/v1/transaction/logs?did=" . $did . "&type = " . $type;
+        $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type = " . $type;
         curl_setopt($this->curl_client, CURLOPT_URL, $url);
 
         $res = curl_exec($this->curl_client);
@@ -338,19 +341,50 @@ class WalletClient implements WalletApi {
         return 0;
     }
 
-  /*
-    function getWalletInfo(){
-
+  
+    function getWalletInfo($did,&$response){
+         //发送get请求
+         $url = $this->host . "/wallet-ng/v1/wallet/info?id=" . $did;
+         curl_setopt($this->curl_client, CURLOPT_URL, $url);
+ 
+         $res = curl_exec($this->curl_client);
+         if ($res == ""){
+             echo "curl error" ,"\n";
+             return -1;
+         }
+ 
+         // 验签解密
+         $this->ecc_client->decryptAndVerify($res,$data);
+         if (empty($data)){
+             echo "decrypt_and_verify error" , "\n"; 
+             return -2;
+         }
+ 
+         $response = $data;
+         return 0;
     }
 
-    function uploadPOEFile(){
+    function getWalletBalance($did,&$response){
+        //发送get请求
+        $url = $this->host . "/wallet-ng/v1/wallet/balance?id=" . $did;
+        curl_setopt($this->curl_client, CURLOPT_URL, $url);
 
+        $res = curl_exec($this->curl_client);
+        if ($res == ""){
+            echo "curl error" ,"\n";
+            return -1;
+        }
+
+        // 验签解密
+        $this->ecc_client->decryptAndVerify($res,$data);
+        if (empty($data)){
+            echo "decrypt_and_verify error" , "\n"; 
+            return -2;
+        }
+
+        $response = $data;
+        return 0;
     }
-    function tranfserTxn(){
-
-    }
-
-     */
 
     // 析构函数
     function __destruct(){
