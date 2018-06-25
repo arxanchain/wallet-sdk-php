@@ -1,14 +1,15 @@
 # wallet-sdk-php
  Blockchain Wallet SDK includes APIs for managing wallet accounts(Decentralized Identifiers, DID), digital assets(Proof of Existence, POE), colored tokens etc.  You need not care about how the backend blockchain runs or the unintelligible techniques, such as consensus, endorsement and decentralization. Simply use the SDK we provide to implement your business logics, we will handle the caching, tagging, compressing, encrypting and high availability.
 
-1. 注册wallet客户端
+## 1. 注册wallet客户端
 $client = new WalletClient($host,$api_key,$cert_path,$did);
 $host:arxan-chain wallet服务的ip与port
 $api_key:注册企业账户返回的api=key
 $cert_path:秘钥与证书目录
 $did:企业wallet账户id
 
-2. 注册wallet账户
+## 2. 注册wallet账户
+```code
 $register = array(
     "type"=> "Organization", //类型(必填)
     "access"=> "songtest22", //账户名
@@ -41,8 +42,9 @@ $response 为请求返回的多维数组
         }
     }
 }
+```
 
-3.创建数字资产存证
+## 3.创建数字资产存证
 $poe = array(
     "id"=> "",
     "name"=> "测试1",(必填)
@@ -78,7 +80,7 @@ $response 为请求返回的多维数组
     }
 }
 
-4.发行数字凭证
+## 4.发行数字凭证
 $ctoken = array(
     "issuer"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填) //发行者
     "owner"=> "did:axn:65tGAKCERh95uHllllllRU",(必填) //拥有者 
@@ -115,7 +117,7 @@ $response 为请求返回的多维数组
     }
 }
 
-5.发行数字资产
+## 5.发行数字资产
 $asset = array(
     "issuer": "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
     "owner": "did:axn:65tGAKCERh95uHllllllRU",(必填)
@@ -150,7 +152,7 @@ $response 为请求返回的多维数组
     }
 }
 
-6.转让资产
+## 6.转让资产
 $data = array(
     "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
     "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
@@ -182,7 +184,7 @@ $response 为请求返回的多维数组
     }
 }
 
-7.转让数字凭证
+## 7.转让数字凭证
 $data = array(
     "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
     "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
@@ -217,7 +219,7 @@ $response 为请求返回的多维数组
     }
 }
 
-8.获取账户信息
+## 8.获取账户信息
 $did : 账户id
 $client->getWalletInfo($did,$response); 返回值0表示正常
 $response 为请求返回的多维数组
@@ -236,7 +238,7 @@ $response 为请求返回的多维数组
         ["hds"]=> NULL;
 }
 
-9.查询钱包余额
+## 9.查询钱包余额
 $did : 账户id
 $client->getWalletBalance($did,$response); 返回值0表示正常
 $response 为请求返回的多维数组
@@ -261,4 +263,4 @@ $response 为请求返回的多维数组
         }
 }
 
-具体用法请参考test.php
+# 具体用法请参考test.php
