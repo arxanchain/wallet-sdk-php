@@ -1,93 +1,206 @@
 <?php
 
-$ch = curl_init(); 
-$url = "http://103.67.193.150:15007/wallet-ng/v1/wallet/register";
-curl_setopt ($ch, CURLOPT_URL, $url); 
+require (__DIR__ . "/api/wallet.php");
 
-// 设置http头
-$header = array();
-$header[] = 'API-Key:eZUDImzTp1528874024';
-//$header[] = 'Content-Encoding:*';
-$header[] = 'Content-Type: application/json;charset=utf-8'; 
-$header[] = 'Bc-Invoke-Mode:sync'; 
+$host = "http://103.67.193.150:15007";
+$api_key = "eZUDImzTp1528874024";
+$cert_path = "/home/carl/workspace/src/github.com/arxanchain/php-common/cryption/cert/client_certs";
+$did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
 
-//$header[] = 'Accept-Encoding:*';
 
-// 设置http body
-$body = array(
-   // "id"=> "",
+$client = new WalletClient($host,$api_key,$cert_path,$did);
+
+$register_body1 = array(
     "type"=> "Organization",
-    "access"=> "songtest5",
+    "access"=> "songtest19",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
 );
 
-// 对body进行json编码
-$json_str = json_encode($body);
-echo "json_str :","\n",$json_str,"\n";
+$register_body2 = array(
+    "type"=> "Organization",
+    "access"=> "songtest20",
+    "phone"=> "18337177372",
+    "email"=> "Tom@163.com",
+    "secret"=> "SONGsong110",
+);
 
+$client->register($register_body1,$register_res1);
+echo "register wallet1 info:\n";
+var_dump($register_res1);
+echo "\n";
 
-$base64_str = base64_encode($json_str);
-echo "base64data :","\n",$base64_str,"\n";
+$client->register($register_body2,$register_res2);
+echo "register wallet1 info:\n";
+var_dump($register_res2);
+echo "\n";
 
-$path = "/etc/arxanchin/key/client_certs";
-$api_key = "eZUDImzTp1528874024";
-$mode1 = 1;
-
-$cmd1 = "crypto-util" . " -apikey " .  $api_key . " -data " . $base64_str. " -path " . $path . " -mode " . $mode1  ;
-
-//echo $cmd , "\n";
-//
-exec("$cmd1",$signed_data);
-var_dump($signed_data);
-
-echo "signed_data: ","\n",$signed_data[0],"\n";
-
-
-
-////var_dump($res);
-//
+//echo "res:\n",$res,"\n";
 
 
 
-//curl_setopt($ch, CURLOPT_HEADER, $header); 
-//curl_setopt($ch, CURLOPT_HEADER, 0); 
-curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-curl_setopt($ch, CURLOPT_POSTFIELDS, $signed_data[0]); 
-curl_setopt($ch, CURLOPT_CUSTOMREQUEST, 'POST'); 
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+$poe1 = array(
+    "name"=> "宋松测试1",
+    "owner"=> $register_res1["Payload"]["id"],
+);
 
-$res_data= curl_exec($ch); 
+$sign_poe1= array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+);
 
-echo "res :","\n",$res_data,"\n"; 
+// 创建资产
+$ret = $client->createPOE($poe1,$sign_poe1,$poe_res1);
+if ($ret !=0){
+    "create poe error\n";
+    return ;
+}
+echo "create poe succ :\n";
+var_dump($poe_res1);
+echo "\n";
 
-$mode2 = 2;
-$cmd2 = "crypto-util" . " -apikey " .  $api_key . " -data " . $res_data . " -path " . $path . " -mode " . $mode2  ;
+// 发行token
+// ...
+$token= array(
+    "issuer"=>$client->did,
+    "owner"=>$register_res1["Payload"]["id"],
+    "asset_id"=> $poe_res1["Payload"]["id"],
+    "amount"=> 1000,
+);
 
-exec("$cmd2",$res2);
+$sign_token= array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+);
 
-echo "res2:","\n";
-echo $res2[0], "\n";
+$ret = $client->issuerCToken($token,$sign_token,$token_res);
+if ($ret !=0){
+    "issuer token error\n";
+    return ;
+}
+echo "issuerCToken succ :\n";
+var_dump($poe_res1);
+echo "\n";
 
-$obj = json_decode($res2[0]);
-//var_dump($obj);
 
-if ($obj->Payload != ""){
-    $obj = json_decode($obj->Payload);
-    var_dump($obj);
+
+// 创建资产
+$poe2 = array(
+    "name"=> "宋松测试2",
+    "owner"=> $register_res1["Payload"]["id"],
+);
+
+$sign_poe2= array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+);
+
+$ret = $client->createPOE($poe1,$sign_poe1,$poe_res2);
+if ($ret !=0){
+    "create poe error\n";
+    return;
+}
+echo "create poe succ :\n";
+var_dump($poe_res2);
+echo "\n";
+
+// 发行资产
+$asset= array(
+    "issuer"=>"did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042",
+    "owner"=>$register_res1["Payload"]["id"],
+    "asset_id"=> $poe_res2["Payload"]["id"],
+);
+
+$sign_asset= array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+);
+
+$client->issuerAsset($asset,$sign_asset,$asset_res);
+echo "issuerAsset succ:\n";
+var_dump($token_res);
+echo "\n";
+
+
+// 转让资产
+
+$transfer_asset = array(
+    "from"=> $register_res1["Payload"]["id"],
+    "to"=> $register_res2["Payload"]["id"],
+    "assets"=>array(
+        $asset_res["Payload"]["token_id"],   
+    ), 
+);
+
+
+$sign_asset = array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+); 
+
+$ret = $client->transferAsset($transfer_asset,$sign_asset,$transf_asset_res);
+if($ret!=0){
+    echo "transfer asset error\n";
+}
+echo("transfer asset succ:\n");
+var_dump($transf_asset_res);
+echo "\n";
+
+
+$transfer_token = array(
+    "from"=> $register_res1["Payload"]["id"],
+    "to"=> $register_res2["Payload"]["id"],
+    "tokens"=>array(
+        array(
+            "token_id"=>$token_res["Payload"]["token_id"],
+            "amount"=> 10, 
+        ),
+    ), 
+);
+
+$sign_asset= array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+); 
+
+$ret = $client->transferCToken($transfer_token,$sign_asset,$transf_token_res);
+if ($ret!=0){
+    echo "transfer ctoken error\n";
+    return;
+}
+echo "transfer ctoken succ:\n";
+var_dump($transf_token_res);
+echo "\n";
+
+$client->getWalletInfo($register_res1["Payload"]["id"],$wallet1);
+echo "wallet1 info:\n";
+var_dump($wallet1);
+echo "\n";
+
+$client->getWalletBalance($register_res2["Payload"]["id"],$wallet2);
+echo "wallet1 balance:\n";
+var_dump($wallet2);
+echo "\n";
+
+/*
+$file = "./1.php";
+$mode = true;
+
+$ret = $client->uploadPOEFile($asset,$file,$mode,$res1);
+if ($ret!=0){
+    echo "upload poe file error \n";
 }
 
-//echo $obj["Payload"];
+echo "uploadPOEFile succ\n";
+var_dump($res1);
+ */
 
-
-//var_dump($res2);
-
-
-
-//echo "res:","\n",$res1[0],"\n";
-
-//list($res_header, $res_body) = explode("\r\n\r\n", $file_contents, 2);
-
-//echo $res_body ,"\n";
+//var_dump($res);
 

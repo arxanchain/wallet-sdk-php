@@ -9,7 +9,7 @@ interface WalletApi {
     // 获取钱包的基本信息
     function getWalletInfo($did,&$response);
     // 获取钱包余额
-    function getWalletBalance($id,&$response);
+    function getWalletBalance($did,&$response); 
     //
     // 创建数字资产
     function createPOE($poe_body,$sign_body,&$response);
@@ -32,7 +32,8 @@ class WalletClient implements WalletApi {
     var $cert_path;
     var $api_key;
     var $did;
-    var $curl_client;
+    var $curl_post;
+    var $curl_get;
     var $ecc_client;
     var $sign_client;
     var $header;
@@ -42,7 +43,8 @@ class WalletClient implements WalletApi {
         $this->api_key = $api_key;
         $this->cert_path = $cert_path;
         $this->did = $did;
-        $this->curl_client = curl_init();
+        $this->curl_post = curl_init();
+        $this->curl_get = curl_init();
         $this->ecc_client = new encrypt($cert_path,$api_key);
         $this->sign_client = NULL;
 
@@ -51,20 +53,25 @@ class WalletClient implements WalletApi {
         $header[0] = 'API-Key:' . $api_key;
         $header[1] = 'Content-Type: application/json;charset=utf-8'; 
         $header[2] = 'Bc-Invoke-Mode:sync';
-        curl_setopt($this->curl_client, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($this->curl_client, CURLOPT_RETURNTRANSFER, 1);        
+        curl_setopt($this->curl_post, CURLOPT_HTTPHEADER, $header);
+        //设置获取的信息以文件流的形式返回，而不是直接输出
+        curl_setopt($this->curl_post, CURLOPT_RETURNTRANSFER, 1);
+
+        curl_setopt($this->curl_get, CURLOPT_HTTPHEADER, $header);
+        //设置获取的信息以文件流的形式返回，而不是直接输出
+        curl_setopt($this->curl_get, CURLOPT_RETURNTRANSFER, 1);     
     }
 
     function register($register_body,&$response){
         $this->ecc_client->signAndEncrypt($register_body,$request);
-        if ($data == ""){
+        if ($request == ""){
             return -1;
         }
-        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/wallet/register";
-        curl_setopt ($this->curl_client, CURLOPT_URL, $url);
-        $res = curl_exec($this->curl_client);
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+        $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -95,12 +102,12 @@ class WalletClient implements WalletApi {
         $this->ecc_client->signAndEncrypt($signed_data,$request);
 
         // 发送请求
-        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/poe/create";
-        curl_setopt ($this->curl_client, CURLOPT_URL, $url);
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
 
-        $res = curl_exec($this->curl_client);
+        $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -186,12 +193,12 @@ class WalletClient implements WalletApi {
         $this->ecc_client->signAndEncrypt($signed_data,$request);
 
         // 发送请求
-        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/transaction/assets/issue";
-        curl_setopt ($this->curl_client, CURLOPT_URL, $url);
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
 
-        $res = curl_exec($this->curl_client);
+        $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -223,12 +230,12 @@ class WalletClient implements WalletApi {
         $this->ecc_client->signAndEncrypt($signed_data,$request);
 
         // 发送请求
-        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/transaction/tokens/issue";
-        curl_setopt ($this->curl_client, CURLOPT_URL, $url);
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
 
-        $res = curl_exec($this->curl_client);
+        $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -260,12 +267,12 @@ class WalletClient implements WalletApi {
         $this->ecc_client->signAndEncrypt($signed_data,$request);
 
         // 发送请求
-        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/transaction/assets/transfer";
-        curl_setopt ($this->curl_client, CURLOPT_URL, $url);
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
 
-        $res = curl_exec($this->curl_client);
+        $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -298,12 +305,12 @@ class WalletClient implements WalletApi {
         $this->ecc_client->signAndEncrypt($signed_data,$request);
 
         // 发送请求
-        curl_setopt($this->curl_client, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($this->curl_client, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/transaction/tokens/transfer";
-        curl_setopt($this->curl_client, CURLOPT_URL, $url);
+        curl_setopt($this->curl_post, CURLOPT_URL, $url);
 
-        $res = curl_exec($this->curl_client);
+        $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -322,9 +329,9 @@ class WalletClient implements WalletApi {
     function tranfserTxn($did,$type,&$response){
         //发送get请求
         $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type = " . $type;
-        curl_setopt($this->curl_client, CURLOPT_URL, $url);
+        curl_setopt($this->curl_get, CURLOPT_URL, $url);
 
-        $res = curl_exec($this->curl_client);
+        $res = curl_exec($this->curl_get);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -345,9 +352,9 @@ class WalletClient implements WalletApi {
     function getWalletInfo($did,&$response){
          //发送get请求
          $url = $this->host . "/wallet-ng/v1/wallet/info?id=" . $did;
-         curl_setopt($this->curl_client, CURLOPT_URL, $url);
- 
-         $res = curl_exec($this->curl_client);
+         curl_setopt($this->curl_get, CURLOPT_URL, $url);
+         
+         $res = curl_exec($this->curl_get);
          if ($res == ""){
              echo "curl error" ,"\n";
              return -1;
@@ -367,9 +374,8 @@ class WalletClient implements WalletApi {
     function getWalletBalance($did,&$response){
         //发送get请求
         $url = $this->host . "/wallet-ng/v1/wallet/balance?id=" . $did;
-        curl_setopt($this->curl_client, CURLOPT_URL, $url);
-
-        $res = curl_exec($this->curl_client);
+        curl_setopt($this->curl_get, CURLOPT_URL, $url);
+        $res = curl_exec($this->curl_get);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
@@ -388,7 +394,8 @@ class WalletClient implements WalletApi {
 
     // 析构函数
     function __destruct(){
-        curl_close($this->curl_client);
+        curl_close($this->curl_post);
+        curl_close($this->curl_get);
     }
 
 }
