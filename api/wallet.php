@@ -4,7 +4,12 @@ require (__DIR__ . "/../../php-common/cryption/crypto.php");
 require (__DIR__ . "/../../php-common/cryption/sign.php");
 
 interface WalletApi {
-    // 注册钱包
+    // 注册钱包 
+    /*  register_body josn 对象
+     *  response 返回的json对象
+     * 
+     * 
+     */
     function register($register_body,&$response);
     // 获取钱包的基本信息
     function getWalletInfo($did,&$response);
@@ -63,28 +68,28 @@ class WalletClient implements WalletApi {
     }
 
     function register($register_body,&$response){
-        $this->ecc_client->signAndEncrypt($register_body,$request);
-        if ($request == ""){
-            return -1;
+        $ret = $this->ecc_client->signAndEncrypt($register_body,$request);
+        if ($ret != 0){
+            return $ret;
         }
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/wallet/register";
         curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+
         $res = curl_exec($this->curl_post);
         if ($res == ""){
             echo "curl error" ,"\n";
             return -1;
         }
 
-        $this->ecc_client->DecryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->DecryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
     function createPOE($poe_body,$sign_body,&$response) {
@@ -92,14 +97,20 @@ class WalletClient implements WalletApi {
         $this->sign_client = new Signature($sign_body);
 
         // 签名
-        $this->sign_client->sign($poe_body,$signed_data);
+        $ret = $this->sign_client->sign($poe_body,$signed_data);
+        if ($ret!=0){
+            return $ret;
+        }
 
         // 销毁签名对象
         unset($this->sign_client); 
         $this->sign_client = NULL;
 
         // 签名返回的数据，交给ecc去加密签名
-        $this->ecc_client->signAndEncrypt($signed_data,$request);
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret !=0){
+            return $ret;
+        }
 
         // 发送请求
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -109,18 +120,16 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            echo "curl error" ,"\n";
             return -1;
         }
 
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if($ret !=0){
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
     // TODO 上传存证文件
@@ -134,8 +143,11 @@ class WalletClient implements WalletApi {
             "read_only"=>"$mode",
         );
         // 通道加密签名
-        $this->ecc_client->signAndEncrypt($data,$request);
-        
+        $ret = $this->ecc_client->signAndEncrypt($data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
+
         // 设置http请求
         // 这个请求与其他的请求数据不同，为了方便，在此重新设置一个新的客户端，并在使用完毕后，销毁
         $upload_curl = curl_init();
@@ -144,9 +156,6 @@ class WalletClient implements WalletApi {
         $header[1] = 'Content-Type:multipart/form-data';
         //$header[1] = 'Content-Type: application/json;charset=utf-8'; 
         $header[2] = 'Bc-Invoke-Mode:sync';
-
-        echo "header:\n";
-        var_dump($header);
 
         $url = $this->host . "/wallet-ng/v1/poe/upload";
         curl_setopt($upload_curl, CURLOPT_URL, $url);
@@ -158,23 +167,18 @@ class WalletClient implements WalletApi {
         // 发送请求
         $res = curl_exec($upload_curl);
         if ($res == ""){
-            echo "curl error" ,"\n";
             return -1;
         }
 
-        echo $res , "\n";
-
         // 加密与验签
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "data empty\n";
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret !=0){
+            return $ret;
         }
 
-        $response = $data;
         curl_close($upload_curl);
-        return 0;
+        $response = $data;
+        return $response["ErrCode"];
     }
 
     // 发行资产
@@ -183,14 +187,20 @@ class WalletClient implements WalletApi {
         $this->sign_client = new Signature($sign_body);
 
         // 签名
-        $this->sign_client->sign($asset_body,$signed_data);
+        $ret = $this->sign_client->sign($asset_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 销毁签名对象
         unset($this->sign_client); 
         $this->sign_client = NULL;
 
         // 签名返回的数据，交给ecc去加密签名
-        $this->ecc_client->signAndEncrypt($signed_data,$request);
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 发送请求
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -200,18 +210,16 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            echo "curl error" ,"\n";
             return -1;
         }
 
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
     // 发行token
@@ -220,14 +228,20 @@ class WalletClient implements WalletApi {
         $this->sign_client = new Signature($sign_body);
 
         // 签名
-        $this->sign_client->sign($ctoken_body,$signed_data);
+        $ret = $this->sign_client->sign($ctoken_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 销毁签名对象
         unset($this->sign_client); 
         $this->sign_client = NULL;
 
         // 签名返回的数据，交给ecc去加密签名
-        $this->ecc_client->signAndEncrypt($signed_data,$request);
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 发送请求
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -241,14 +255,13 @@ class WalletClient implements WalletApi {
             return -1;
         }
 
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
     // 转让资产
@@ -257,14 +270,20 @@ class WalletClient implements WalletApi {
         $this->sign_client = new Signature($sign_body);
 
         // 签名
-        $this->sign_client->sign($transfer_body,$signed_data);
+        $ret = $this->sign_client->sign($transfer_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 销毁签名对象
         unset($this->sign_client); 
         $this->sign_client = NULL;
 
         // 签名返回的数据，交给ecc去加密签名
-        $this->ecc_client->signAndEncrypt($signed_data,$request);
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 发送请求
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -278,15 +297,13 @@ class WalletClient implements WalletApi {
             return -1;
         }
 
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
         }
 
         $response = $data;
-        return 0;
-
+        return $response["ErrCode"];
     }
 
     // 转让token
@@ -295,14 +312,20 @@ class WalletClient implements WalletApi {
         $this->sign_client = new Signature($sign_body);
 
         // 签名
-        $this->sign_client->sign($transfer_body,$signed_data);
+        $ret = $this->sign_client->sign($transfer_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 销毁签名对象
         unset($this->sign_client); 
         $this->sign_client = NULL;
 
         // 签名返回的数据，交给ecc去加密签名
-        $this->ecc_client->signAndEncrypt($signed_data,$request);
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
 
         // 发送请求
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
@@ -311,19 +334,17 @@ class WalletClient implements WalletApi {
         curl_setopt($this->curl_post, CURLOPT_URL, $url);
 
         $res = curl_exec($this->curl_post);
-        if ($res == ""){
-            echo "curl error" ,"\n";
+        if ($res == "") {
             return -1;
         }
 
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0) {
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
     function tranfserTxn($did,$type,&$response){
@@ -338,37 +359,35 @@ class WalletClient implements WalletApi {
         }
 
         // 验签解密
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
-  
+
     function getWalletInfo($did,&$response){
-         //发送get请求
-         $url = $this->host . "/wallet-ng/v1/wallet/info?id=" . $did;
-         curl_setopt($this->curl_get, CURLOPT_URL, $url);
-         
-         $res = curl_exec($this->curl_get);
-         if ($res == ""){
-             echo "curl error" ,"\n";
-             return -1;
-         }
- 
-         // 验签解密
-         $this->ecc_client->decryptAndVerify($res,$data);
-         if (empty($data)){
-             echo "decrypt_and_verify error" , "\n"; 
-             return -2;
-         }
- 
-         $response = $data;
-         return 0;
+        //发送get请求
+        $url = $this->host . "/wallet-ng/v1/wallet/info?id=" . $did;
+        curl_setopt($this->curl_get, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_get);
+        if ($res == ""){
+            echo "curl error" ,"\n";
+            return -1;
+        }
+
+        // 验签解密
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0) {
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
     }
 
     function getWalletBalance($did,&$response){
@@ -382,14 +401,13 @@ class WalletClient implements WalletApi {
         }
 
         // 验签解密
-        $this->ecc_client->decryptAndVerify($res,$data);
-        if (empty($data)){
-            echo "decrypt_and_verify error" , "\n"; 
-            return -2;
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0) {
+            return $ret;
         }
 
         $response = $data;
-        return 0;
+        return $response["ErrCode"];
     }
 
     // 析构函数
