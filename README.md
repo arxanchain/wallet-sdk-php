@@ -45,6 +45,7 @@ $response 为请求返回的多维数组
 ```
 
 ## 3.创建数字资产存证
+```code
 $poe = array(
     "id"=> "",
     "name"=> "测试1",(必填)
@@ -79,8 +80,10 @@ $response 为请求返回的多维数组
         }
     }
 }
+```
 
 ## 4.发行数字凭证
+```code
 $ctoken = array(
     "issuer"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填) //发行者
     "owner"=> "did:axn:65tGAKCERh95uHllllllRU",(必填) //拥有者 
@@ -116,8 +119,10 @@ $response 为请求返回的多维数组
         }
     }
 }
+```
 
 ## 5.发行数字资产
+```code
 $asset = array(
     "issuer": "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
     "owner": "did:axn:65tGAKCERh95uHllllllRU",(必填)
@@ -151,8 +156,10 @@ $response 为请求返回的多维数组
             "ca3f4141720cd968dc46afe88ab24ebd300183f1179a38a395891546fbf6d171",
     }
 }
+```
 
 ## 6.转让资产
+```code
 $data = array(
     "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
     "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
@@ -183,8 +190,10 @@ $response 为请求返回的多维数组
             "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",//区块链hash
     }
 }
+```
 
 ## 7.转让数字凭证
+```code
 $data = array(
     "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
     "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
@@ -218,8 +227,10 @@ $response 为请求返回的多维数组
             "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",//区块链hash
     }
 }
+```
 
 ## 8.获取账户信息
+```code
 $did : 账户id
 $client->getWalletInfo($did,$response); 返回值0表示正常
 $response 为请求返回的多维数组
@@ -237,8 +248,10 @@ $response 为请求返回的多维数组
         ["updated"]=> 0,
         ["hds"]=> NULL;
 }
+```
 
 ## 9.查询钱包余额
+```code
 $did : 账户id
 $client->getWalletBalance($did,$response); 返回值0表示正常
 $response 为请求返回的多维数组
@@ -262,5 +275,6 @@ $response 为请求返回的多维数组
             }
         }
 }
+```
 
 # 具体用法请参考test.php
