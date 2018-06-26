@@ -288,51 +288,54 @@ $type : 类型，in表示输入，out表示输出
 $client->tranfserTxn($did,$type,$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
-    "ErrCode"=> 0,
-    "Payload"=> {
-        "endpoint-001"=> {
-            "utxo" => [
+    ["ErrCode"]=> 0,
+    ["ErrMessage"]=> "",
+    ["Method"]=> "",
+    ["Payload"]=> {
+        ["endpoint-001"]=> {
+            ["utxo"] => [
                 {
-                    "sourceTxDataHash"=> "source-tx-data-hash",
-                    "ix"=> 1,
-                    "ctokenId"=> "ctokenid-001",
-                    "value"=> 5,
-                    "addr"=> "endpoint-who-will-receive this txout",
-                    "until"=> -1,
-                    "script"=> payload data be attached to this tx"
-                    "createdAt"=> {
-                        "seconds"=> 5555555,
-                        "nanos"=> 0,
+                    ["sourceTxDataHash"]=> "source-tx-data-hash",
+                    ["ix"]=> 1,
+                    ["ctokenId"]=> "ctokenid-001",
+                    ["value"]=> 5,
+                    ["addr"]=> "endpoint-who-will-receive this txout",
+                    ["until"]=> -1,
+                    ["script"]=> payload data be attached to this tx"
+                    ["createdAt"]=> {
+                        ["seconds"]=> 5555555,
+                        ["nanos"]=> 0,
                     },
-                    "founder"=> "funder-did-0001",
-                    "txType"=> 0
+                    ["founder"]=> "funder-did-0001",
+                    ["txType"]=> 0
                 }
             ],
-            "stxo"=> [
+            ["stxo"]=> [
                 {
-                    "sourceTxDataHash"=> "source-tx-data-hash",
-                    "ix"=> 2,
-                    "ctokenId"=> "ctokenid-001",
-                    "value"=> 5,
-                    "addr"=> "endpoint-who-will-receive this txout",
-                    "until"=> -1,
-                    "script"=> payload data be attached to this tx"
-                    "createdAt"=> {
-                        "seconds"=> 6666666,
-                        "nanos"=> 0
+                    ["sourceTxDataHash"]=> "source-tx-data-hash",
+                    ["ix"]=> 2,
+                    ["ctokenId"]=> "ctokenid-001",
+                    ["value"]=> 5,
+                    ["addr"]=> "endpoint-who-will-receive this txout",
+                    ["until"]=> -1,
+                    ["script"]=> payload data be attached to this tx"
+                    ["createdAt"]=> {
+                        ["seconds"]=> 6666666,
+                        ["nanos"]=> 0
                     },
-                    "spentTxDataHash"=> "spent-tx-data-hash",
-                    "spentAt"=> {
-                        "seconds"=> 6666667,
-                        "nanos"=> 0
+                    ["spentTxDataHash"]=> "spent-tx-data-hash",
+                    ["spentAt"]=> {
+                        ["seconds"]=> 6666667,
+                        ["nanos"]=> 0
                     },
-                    "founder"=> "funder-did-0001",
-                    "txType"=> 1
+                    ["founder"]=> "funder-did-0001",
+                    ["txType"]=> 1
                 }
             ]
         }
     }
 }
+
 ix: 未消费交易记录的索引
 ctokenId: 交易的数字凭证ID
 value: 交易的数量
