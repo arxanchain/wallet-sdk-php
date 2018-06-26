@@ -1,6 +1,8 @@
 # wallet-sdk-php
  Blockchain Wallet SDK includes APIs for managing wallet accounts(Decentralized Identifiers, DID), digital assets(Proof of Existence, POE), colored tokens etc.  You need not care about how the backend blockchain runs or the unintelligible techniques, such as consensus, endorsement and decentralization. Simply use the SDK we provide to implement your business logics, we will handle the caching, tagging, compressing, encrypting and high availability.
 
+# 使用说明
+
 ## 1. 注册wallet客户端
 ```code
 $host:arxan-chain wallet服务的ip与port
@@ -277,6 +279,71 @@ $response 为请求返回的多维数组
             }
         }
 }
+```
+
+## 10.查询钱包余额
+```code
+$did : 账户id
+$type : 类型，in表示输入，out表示输出
+$client->tranfserTxn($did,$type,$response); 返回值0表示正常
+$response 为请求返回的多维数组
+{
+    "ErrCode"=> 0,
+    "Payload"=> {
+        "endpoint-001"=> {
+            "utxo" => [
+                {
+                    "sourceTxDataHash"=> "source-tx-data-hash",
+                    "ix"=> 1,
+                    "ctokenId"=> "ctokenid-001",
+                    "value"=> 5,
+                    "addr"=> "endpoint-who-will-receive this txout",
+                    "until"=> -1,
+                    "script"=> payload data be attached to this tx"
+                    "createdAt"=> {
+                        "seconds"=> 5555555,
+                        "nanos"=> 0,
+                    },
+                    "founder"=> "funder-did-0001",
+                    "txType"=> 0
+                }
+            ],
+            "stxo"=> [
+                {
+                    "sourceTxDataHash"=> "source-tx-data-hash",
+                    "ix"=> 2,
+                    "ctokenId"=> "ctokenid-001",
+                    "value"=> 5,
+                    "addr"=> "endpoint-who-will-receive this txout",
+                    "until"=> -1,
+                    "script"=> payload data be attached to this tx"
+                    "createdAt"=> {
+                        "seconds"=> 6666666,
+                        "nanos"=> 0
+                    },
+                    "spentTxDataHash"=> "spent-tx-data-hash",
+                    "spentAt"=> {
+                        "seconds"=> 6666667,
+                        "nanos"=> 0
+                    },
+                    "founder"=> "funder-did-0001",
+                    "txType"=> 1
+                }
+            ]
+        }
+    }
+}
+ix: 未消费交易记录的索引
+ctokenId: 交易的数字凭证ID
+value: 交易的数量
+addr: 交易的目标账户ID
+until: until xx timestamp, any one cant spend the txout, -1 means no check
+script: 交易的附属数据
+createdAt: 交易创建时间
+funder: 交易的发起人ID
+txType: 交易类型
+spentTxDataHash: 已消费交易记录的数据Hash
+spentAt: 消费时间
 ```
 
 # 具体用法请参考test.php

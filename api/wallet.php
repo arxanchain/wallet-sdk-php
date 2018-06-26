@@ -356,7 +356,7 @@ class WalletClient implements WalletApi {
 
     function tranfserTxn($did,$type,&$response){
         //发送get请求
-        $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type = " . $type;
+        $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[" . $type ."]";
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
 
         $res = curl_exec($this->curl_get);
