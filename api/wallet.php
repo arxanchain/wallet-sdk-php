@@ -1,7 +1,11 @@
 <?php
 
-require (__DIR__ . "/../../php-common/cryption/crypto.php");
-require (__DIR__ . "/../../php-common/cryption/sign.php");
+require_once (__DIR__ . "/../../php-common/cryption/crypto.php");
+require_once (__DIR__ . "/../../php-common/cryption/sign.php");
+require_once (__DIR__ . "/../../php-common/error/error.php");
+require_once (__DIR__ . "/../../php-common/log/log.php");
+
+
 
 interface WalletApi {
     // 注册钱包 
@@ -15,11 +19,10 @@ interface WalletApi {
     function getWalletInfo($did,&$response);
     // 获取钱包余额
     function getWalletBalance($did,&$response); 
-    //
     // 创建数字资产
     function createPOE($poe_body,$sign_body,&$response);
     // 上传数字资产凭证
-    function uploadPOEFile($asset_id,$file,$mode,&$response);
+    //function uploadPOEFile($asset_id,$file,$mode,&$response); api暂时没处理
     // 发行资产
     function issuerAsset($asset_body,$sign_body,&$response);
     // 发行token
@@ -79,8 +82,9 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            echo "curl error" ,"\n";
-            return -1;
+            //echo "curl error" ,"\n";
+            // curl 失败认为都是参数错误
+            return errCode["InvalidRequestBody"];
         }
 
         $ret = $this->ecc_client->DecryptAndVerify($res,$data);
@@ -120,7 +124,7 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            return -1;
+            return errCode["InvalidRequestBody"];
         }
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
@@ -133,28 +137,28 @@ class WalletClient implements WalletApi {
     }
 
     // TODO 上传存证文件
+    /*
     function uploadPOEFile($asset_id,$file,$mode,&$response){
         // 打开文件，读文件
-        $str = file_get_contents($file);
+        //$str = file_get_contents($file);
         // 组装form数据
         $data = array(
             "poe_id"=>$asset_id,
             "poe_file"=>"$file",
             "read_only"=>"$mode",
         );
-        // 通道加密签名
-        $ret = $this->ecc_client->signAndEncrypt($data,$request);
-        if ($ret != 0){
-            return $ret;
-        }
+
 
         // 设置http请求
         // 这个请求与其他的请求数据不同，为了方便，在此重新设置一个新的客户端，并在使用完毕后，销毁
+        // 生成boundary随机值
+        //e3 95 d0 d3 88 03 a7 7b 4e 6c f4 48 18 e4 0a 9a a5 31 01 8c c5 10 24 eb 62 be 75 9a e8 01
+        //$boundary = "";
+
         $upload_curl = curl_init();
         $header = array();
         $header[0] = 'API-Key:' . $this->api_key;
         $header[1] = 'Content-Type:multipart/form-data';
-        //$header[1] = 'Content-Type: application/json;charset=utf-8'; 
         $header[2] = 'Bc-Invoke-Mode:sync';
 
         $url = $this->host . "/wallet-ng/v1/poe/upload";
@@ -162,14 +166,16 @@ class WalletClient implements WalletApi {
 
         curl_setopt($upload_curl, CURLOPT_HTTPHEADER, $header);
         curl_setopt($upload_curl, CURLOPT_CUSTOMREQUEST, 'POST');
-        curl_setopt($upload_curl, CURLOPT_POSTFIELDS, $request);
+        curl_setopt($upload_curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($upload_curl, CURLOPT_POSTFIELDS, $data);
 
         // 发送请求
         $res = curl_exec($upload_curl);
         if ($res == ""){
-            return -1;
+            return errCode["InvalidRequestBody"];
         }
 
+        echo "res = \n",$res,"\n";
         // 加密与验签
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret !=0){
@@ -180,6 +186,7 @@ class WalletClient implements WalletApi {
         $response = $data;
         return $response["ErrCode"];
     }
+    */
 
     // 发行资产
     function issuerAsset($asset_body,$sign_body,&$response){
@@ -210,7 +217,7 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            return -1;
+            return errCode["InvalidRequestBody"];
         }
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
@@ -251,8 +258,8 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            echo "curl error" ,"\n";
-            return -1;
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
         }
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
@@ -293,8 +300,8 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            echo "curl error" ,"\n";
-            return -1;
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
         }
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
@@ -335,7 +342,7 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == "") {
-            return -1;
+            return errCode["InvalidRequestBody"];
         }
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
@@ -354,8 +361,7 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_get);
         if ($res == ""){
-            echo "curl error" ,"\n";
-            return -1;
+            return errCode["InvalidRequestBody"];
         }
 
         // 验签解密
@@ -376,8 +382,8 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_get);
         if ($res == ""){
-            echo "curl error" ,"\n";
-            return -1;
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
         }
 
         // 验签解密
@@ -396,8 +402,8 @@ class WalletClient implements WalletApi {
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
         $res = curl_exec($this->curl_get);
         if ($res == ""){
-            echo "curl error" ,"\n";
-            return -1;
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
         }
 
         // 验签解密
