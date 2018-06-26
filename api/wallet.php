@@ -33,6 +33,16 @@ interface WalletApi {
     function transferCToken($transfer_body,$sign_body,&$response);
     // 交易历史
     function tranfserTxn($id,$mode,&$response);
+    // 预发行数字凭证
+    function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response);
+    // 预发行数字资产
+    function sendIssueAssetProposal($asset_body,$sign_body,&$response);
+    // 预转让数字凭证
+    function sendTransferCTokenProposal($transfer_body,$sign_body,&$response);
+    // 预转让数字资产
+    function sendTransferAssetProposal($transfer_body,$sign_body,&$response);
+    // 交易处理
+    function processTx($txs,&$response);
 }
 
 class WalletClient implements WalletApi {
@@ -409,6 +419,197 @@ class WalletClient implements WalletApi {
         // 验签解密
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0) {
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
+    }
+
+    function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response){
+        // 创建ed25519对象
+        $this->sign_client = new Signature($sign_body);
+
+        // 签名
+        $ret = $this->sign_client->sign($ctoken_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 销毁签名对象
+        unset($this->sign_client); 
+        $this->sign_client = NULL;
+
+        // 签名返回的数据，交给ecc去加密签名
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 发送请求
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
+        $url = $this->host . "/wallet-ng/v1/transaction/tokens/issue/prepare";
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_post);
+        if ($res == ""){
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
+        }
+
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
+    }
+
+    function sendIssueAssetProposal($asset_body,$sign_body,&$response){
+        // 创建ed25519对象
+        $this->sign_client = new Signature($sign_body);
+
+        // 签名
+        $ret = $this->sign_client->sign($ctoken_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 销毁签名对象
+        unset($this->sign_client); 
+        $this->sign_client = NULL;
+
+        // 签名返回的数据，交给ecc去加密签名
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 发送请求
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
+        $url = $this->host . "/wallet-ng/v1/transaction/tokens/issue/prepare";
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_post);
+        if ($res == ""){
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
+        }
+
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
+    }
+
+    function sendTransferCTokenProposal($asset_body,$sign_body,&$response){
+        // 创建ed25519对象
+        $this->sign_client = new Signature($sign_body);
+
+        // 签名
+        $ret = $this->sign_client->sign($ctoken_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 销毁签名对象
+        unset($this->sign_client); 
+        $this->sign_client = NULL;
+
+        // 签名返回的数据，交给ecc去加密签名
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 发送请求
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
+        $url = $this->host . "/wallet-ng/v1/transaction/tokens/issue/prepare";
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_post);
+        if ($res == ""){
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
+        }
+
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
+    }
+
+    function sendTransferAssetProposal($asset_body,$sign_body,&$response){
+        // 创建ed25519对象
+        $this->sign_client = new Signature($sign_body);
+
+        // 签名
+        $ret = $this->sign_client->sign($ctoken_body,$signed_data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 销毁签名对象
+        unset($this->sign_client); 
+        $this->sign_client = NULL;
+
+        // 签名返回的数据，交给ecc去加密签名
+        $ret = $this->ecc_client->signAndEncrypt($signed_data,$request);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        // 发送请求
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
+        $url = $this->host . "/wallet-ng/v1/transaction/tokens/issue/prepare";
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_post);
+        if ($res == ""){
+            //echo "curl error" ,"\n";
+            return errCode["InvalidRequestBody"];
+        }
+
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0){
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
+    }
+
+    //TODO 待修改
+    function processTx($txs_array,&$response){
+        $ret = $this->ecc_client->signAndEncrypt($txs_array,$request);
+        if ($ret != 0){
+            return $ret;
+        }
+        curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
+        curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
+        $url = $this->host . "/wallet-ng/v1/transaction/process";
+        curl_setopt ($this->curl_post, CURLOPT_URL, $url);
+
+        $res = curl_exec($this->curl_post);
+        if ($res == ""){
+            //echo "curl error" ,"\n";
+            // curl 失败认为都是参数错误
+            return errCode["InvalidRequestBody"];
+        }
+
+        $ret = $this->ecc_client->DecryptAndVerify($res,$data);
+        if ($ret != 0){
             return $ret;
         }
 

@@ -301,13 +301,13 @@ $response 为请求返回的多维数组
                     ["value"]=> 5,
                     ["addr"]=> "endpoint-who-will-receive this txout",
                     ["until"]=> -1,
-                    ["script"]=> payload data be attached to this tx"
+                    ["script"]=> payload data be attached to this tx",
                     ["createdAt"]=> {
                         ["seconds"]=> 5555555,
                         ["nanos"]=> 0,
                     },
                     ["founder"]=> "funder-did-0001",
-                    ["txType"]=> 0
+                    ["txType"]=> 0,
                 }
             ],
             ["stxo"]=> [
@@ -318,18 +318,18 @@ $response 为请求返回的多维数组
                     ["value"]=> 5,
                     ["addr"]=> "endpoint-who-will-receive this txout",
                     ["until"]=> -1,
-                    ["script"]=> payload data be attached to this tx"
+                    ["script"]=> payload data be attached to this tx",
                     ["createdAt"]=> {
                         ["seconds"]=> 6666666,
-                        ["nanos"]=> 0
+                        ["nanos"]=> 0,
                     },
                     ["spentTxDataHash"]=> "spent-tx-data-hash",
                     ["spentAt"]=> {
                         ["seconds"]=> 6666667,
-                        ["nanos"]=> 0
+                        ["nanos"]=> 0,
                     },
                     ["founder"]=> "funder-did-0001",
-                    ["txType"]=> 1
+                    ["txType"]=> 1,
                 }
             ]
         }
