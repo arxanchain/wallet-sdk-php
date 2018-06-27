@@ -12,7 +12,7 @@ $client = new WalletClient($host,$api_key,$cert_path,$did);
 
 $register_body1 = array(
     "type"=> "Organization",
-    "access"=> "culturetest1",
+    "access"=> "culturetest3",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -20,7 +20,7 @@ $register_body1 = array(
 
 $register_body2 = array(
     "type"=> "Organization",
-    "access"=> "culturetest2",
+    "access"=> "culturetest4",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",

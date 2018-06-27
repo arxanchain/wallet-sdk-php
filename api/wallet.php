@@ -17,6 +17,8 @@ interface WalletApi {
     function getWalletBalance($did,&$response); 
     // 创建数字资产
     function createPOE($poe_body,$sign_body,&$response);
+    // 查询数字资产存在 
+    function getAssetInfo($did,&$response);
     // 上传数字资产凭证
     //function uploadPOEFile($asset_id,$file,$mode,&$response); //api暂时没处理
     // 发行资产
@@ -28,7 +30,7 @@ interface WalletApi {
     // 转移ctoken
     function transferCToken($transfer_body,$sign_body,&$response);
     // 交易历史
-    function tranfserTxn($id,$mode,&$response);
+    function tranfserTxn($did,$mode,&$response);
     // 预发行数字凭证
     function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response);
     // 预发行数字资产
@@ -507,6 +509,29 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
+    function getAssetInfo($did,&$response){
+        if($did == ""){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        //发送get请求
+        $url = $this->host . "/wallet-ng/v1/poe?id=" . $did;
+        curl_setopt($this->curl_get, CURLOPT_URL, $url);
+        $res = curl_exec($this->curl_get);
+        if ($res == ""){
+            return errCode["InvalidRequestBody"];
+        }
+
+        // 验签解密
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0) {
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"];
+    }
+
     function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response){
         if (empty($ctoken_body)){
             return errCode["InvalidParamsErrCode"];
@@ -711,7 +736,6 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
-    //TODO 待修改
     function processTx($txs_array,&$response){
         if (empty($txs_array)){
             return errCode["InvalidParamsErrCode"];
