@@ -82,7 +82,7 @@ if ($ret !=0){
     return ;
 }
 echo "issuerCToken succ :\n";
-var_dump($poe_res1);
+var_dump($token_res);
 echo "\n";
 
 
@@ -123,7 +123,7 @@ $sign_asset= array(
 
 $client->issuerAsset($asset,$sign_asset,$asset_res);
 echo "issuerAsset succ:\n";
-var_dump($token_res);
+var_dump($asset_res);
 echo "\n";
 
 
