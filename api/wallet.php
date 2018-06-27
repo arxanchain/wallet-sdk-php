@@ -81,10 +81,15 @@ class WalletClient implements WalletApi {
     }
 
     function register($register_body,&$response){
+        if (empty($register_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         $ret = $this->ecc_client->signAndEncrypt($register_body,$request);
         if ($ret != 0){
             return $ret;
         }
+
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/wallet/register";
@@ -107,8 +112,19 @@ class WalletClient implements WalletApi {
     }
 
     function createPOE($poe_body,$sign_body,&$response) {
+        if (empty($poe_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if ($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($poe_body,$signed_data);
@@ -200,8 +216,19 @@ class WalletClient implements WalletApi {
 
     // 发行资产
     function issuerAsset($asset_body,$sign_body,&$response){
+        if (empty($asset_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if ($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($asset_body,$signed_data);
@@ -241,8 +268,19 @@ class WalletClient implements WalletApi {
 
     // 发行token
     function issuerCToken($ctoken_body,$sign_body,&$response){
+        if (empty($ctoken_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if ($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($ctoken_body,$signed_data);
@@ -283,8 +321,19 @@ class WalletClient implements WalletApi {
 
     // 转让资产
     function transferAsset($transfer_body,$sign_body,&$response){
+        if (empty($transfer_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if ($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($transfer_body,$signed_data);
@@ -325,8 +374,19 @@ class WalletClient implements WalletApi {
 
     // 转让token
     function transferCToken($transfer_body,$sign_body,&$response){
+        if (empty($transfer_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if ($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($transfer_body,$signed_data);
@@ -365,6 +425,10 @@ class WalletClient implements WalletApi {
     }
 
     function tranfserTxn($did,$type,&$response){
+        if($did == ""){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         //发送get请求
         $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[" . $type ."]";
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
@@ -386,6 +450,10 @@ class WalletClient implements WalletApi {
 
 
     function getWalletInfo($did,&$response){
+        if($did == ""){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         //发送get请求
         $url = $this->host . "/wallet-ng/v1/wallet/info?id=" . $did;
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
@@ -407,6 +475,10 @@ class WalletClient implements WalletApi {
     }
 
     function getWalletBalance($did,&$response){
+        if($did == ""){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         //发送get请求
         $url = $this->host . "/wallet-ng/v1/wallet/balance?id=" . $did;
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
@@ -427,8 +499,19 @@ class WalletClient implements WalletApi {
     }
 
     function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response){
+        if (empty($ctoken_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($ctoken_body,$signed_data);
@@ -468,8 +551,19 @@ class WalletClient implements WalletApi {
     }
 
     function sendIssueAssetProposal($asset_body,$sign_body,&$response){
+        if (empty($ctoken_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($ctoken_body,$signed_data);
@@ -509,8 +603,19 @@ class WalletClient implements WalletApi {
     }
 
     function sendTransferCTokenProposal($asset_body,$sign_body,&$response){
+        if (empty($ctoken_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($ctoken_body,$signed_data);
@@ -550,8 +655,19 @@ class WalletClient implements WalletApi {
     }
 
     function sendTransferAssetProposal($asset_body,$sign_body,&$response){
+        if (empty($ctoken_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if (empty($sign_body)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         // 创建ed25519对象
         $this->sign_client = new Signature($sign_body);
+        if($this->sign_client == NULL){
+            return errCode["InvalidParamsErrCode"];
+        }
 
         // 签名
         $ret = $this->sign_client->sign($ctoken_body,$signed_data);
@@ -592,10 +708,15 @@ class WalletClient implements WalletApi {
 
     //TODO 待修改
     function processTx($txs_array,&$response){
+        if (empty($txs_array)){
+            return errCode["InvalidParamsErrCode"];
+        }
+
         $ret = $this->ecc_client->signAndEncrypt($txs_array,$request);
         if ($ret != 0){
             return $ret;
         }
+        
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/transaction/process";
