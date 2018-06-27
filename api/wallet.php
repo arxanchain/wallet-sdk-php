@@ -102,6 +102,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->DecryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -153,6 +154,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if($ret !=0){
+            $response = $data;
             return $ret;
         }
 
@@ -263,6 +265,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -315,6 +318,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -367,6 +371,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -419,6 +424,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0) {
+            $response = $data;
             return $ret;
         }
 
@@ -434,9 +440,9 @@ class WalletClient implements WalletApi {
         $url = "";
         if($type == ""){
             $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did;
-        } else if($type == "in") {
+        } else if($type == "in"){
             $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[in]";
-        } else if($type == "out") {
+        } else if($type == "out"){
             $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[out]";
         } else {
             return errCode["InvalidParamsErrCode"];
@@ -454,6 +460,7 @@ class WalletClient implements WalletApi {
         // 验签解密
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -479,6 +486,7 @@ class WalletClient implements WalletApi {
         // 验签解密
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0) {
+            $response = $data;
             return $ret;
         }
 
@@ -502,6 +510,7 @@ class WalletClient implements WalletApi {
         // 验签解密
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0) {
+            $response = $data;
             return $ret;
         }
 
@@ -525,6 +534,7 @@ class WalletClient implements WalletApi {
         // 验签解密
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0) {
+            $response = $data;
             return $ret;
         }
 
@@ -576,6 +586,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -627,6 +638,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -678,6 +690,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -729,6 +742,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
@@ -758,6 +772,7 @@ class WalletClient implements WalletApi {
 
         $ret = $this->ecc_client->DecryptAndVerify($res,$data);
         if ($ret != 0){
+            $response = $data;
             return $ret;
         }
 
