@@ -284,7 +284,7 @@ $response 为请求返回的多维数组
 ## 10.查询钱包余额
 ```code
 $did : 账户id
-$type : 类型，in表示输入，out表示输出
+$type : 类型，in表示输入，out表示输出,""表示获取所有
 $client->tranfserTxn($did,$type,$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
@@ -348,5 +348,6 @@ txType: 交易类型
 spentTxDataHash: 已消费交易记录的数据Hash
 spentAt: 消费时间
 ```
+以上接口可以满足绝大部分的业务场景，如果以上接口不能满足您的需求，可以调用我们的高级接口，若还不能满足，请联系我们的工作人员
 
 # 具体用法请参考test.php

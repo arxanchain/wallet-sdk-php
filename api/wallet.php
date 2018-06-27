@@ -5,14 +5,10 @@ require_once (__DIR__ . "/../../php-common/cryption/sign.php");
 require_once (__DIR__ . "/../../php-common/error/error.php");
 require_once (__DIR__ . "/../../php-common/log/log.php");
 
-
-
 interface WalletApi {
     // 注册钱包 
     /*  register_body josn 对象
      *  response 返回的json对象
-     * 
-     * 
      */
     function register($register_body,&$response);
     // 获取钱包的基本信息
@@ -22,7 +18,7 @@ interface WalletApi {
     // 创建数字资产
     function createPOE($poe_body,$sign_body,&$response);
     // 上传数字资产凭证
-    //function uploadPOEFile($asset_id,$file,$mode,&$response); api暂时没处理
+    //function uploadPOEFile($asset_id,$file,$mode,&$response); //api暂时没处理
     // 发行资产
     function issuerAsset($asset_body,$sign_body,&$response);
     // 发行token
@@ -165,36 +161,34 @@ class WalletClient implements WalletApi {
     // TODO 上传存证文件
     /*
     function uploadPOEFile($asset_id,$file,$mode,&$response){
-        // 打开文件，读文件
-        //$str = file_get_contents($file);
-        // 组装form数据
         $data = array(
-            "poe_id"=>$asset_id,
-            "poe_file"=>"$file",
-            "read_only"=>"$mode",
+            "poe_id"=> $asset_id,
+            "poe_file"=> "$file",
+            "read_only"=> "$mode",
         );
-
-
-        // 设置http请求
-        // 这个请求与其他的请求数据不同，为了方便，在此重新设置一个新的客户端，并在使用完毕后，销毁
-        // 生成boundary随机值
-        //e3 95 d0 d3 88 03 a7 7b 4e 6c f4 48 18 e4 0a 9a a5 31 01 8c c5 10 24 eb 62 be 75 9a e8 01
-        //$boundary = "";
+        $fur = "@" . $file;
+        //$data["file"] = $fur;
 
         $upload_curl = curl_init();
+        
         $header = array();
         $header[0] = 'API-Key:' . $this->api_key;
         $header[1] = 'Content-Type:multipart/form-data';
         $header[2] = 'Bc-Invoke-Mode:sync';
+        
 
         $url = $this->host . "/wallet-ng/v1/poe/upload";
         curl_setopt($upload_curl, CURLOPT_URL, $url);
 
         curl_setopt($upload_curl, CURLOPT_HTTPHEADER, $header);
-        curl_setopt($upload_curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        //curl_setopt($upload_curl, CURLOPT_CUSTOMREQUEST, 'POST');
+        //设置获取的信息以文件流的形式返回，而不是直接输出
         curl_setopt($upload_curl, CURLOPT_RETURNTRANSFER, 1);
         curl_setopt($upload_curl, CURLOPT_POSTFIELDS, $data);
-
+        //表单数据，是正规的表单设置值为非0
+        curl_setopt($upload_curl, CURLOPT_POST, 1);
+        curl_setopt($upload_curl,CURLOPT_BINARYTRANSFER,true);
+    
         // 发送请求
         $res = curl_exec($upload_curl);
         if ($res == ""){
@@ -203,16 +197,24 @@ class WalletClient implements WalletApi {
 
         echo "res = \n",$res,"\n";
         // 加密与验签
+        
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret !=0){
             return $ret;
         }
+    
+
+        $json_obj = json_decode($res,true);
+
+        var_dump($json_obj);
 
         curl_close($upload_curl);
         $response = $data;
-        return $response["ErrCode"];
+        return 0;
+        //return $response["ErrCode"];
     }
     */
+    
 
     // 发行资产
     function issuerAsset($asset_body,$sign_body,&$response){
@@ -306,7 +308,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -359,7 +360,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -429,8 +429,19 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
+        $url = "";
+        if($type == ""){
+            $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did;
+        } else if($type == "in") {
+            $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[in]";
+        } else if($type == "out") {
+            $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[out]";
+        } else {
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        //echo "url = ",$url,"\n";
         //发送get请求
-        $url = $this->host . "/wallet-ng/v1/transaction/logs?id=" . $did . "&type=[" . $type ."]";
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
 
         $res = curl_exec($this->curl_get);
@@ -460,7 +471,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_get);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -484,7 +494,6 @@ class WalletClient implements WalletApi {
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
         $res = curl_exec($this->curl_get);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -537,7 +546,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -589,7 +597,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -641,7 +648,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -693,7 +699,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
             return errCode["InvalidRequestBody"];
         }
 
@@ -724,8 +729,6 @@ class WalletClient implements WalletApi {
 
         $res = curl_exec($this->curl_post);
         if ($res == ""){
-            //echo "curl error" ,"\n";
-            // curl 失败认为都是参数错误
             return errCode["InvalidRequestBody"];
         }
 
