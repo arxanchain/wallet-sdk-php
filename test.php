@@ -10,6 +10,9 @@ $did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
 
 $client = new WalletClient($host,$api_key,$cert_path,$did);
 
+//$client->set_header("Bc-Invoke-Mode","sync");
+//$client->set_header("Callback-Url","http://121.69.8.22:8066");
+
 $register_body1 = array(
     "type"=> "Organization",
     "access"=> "culturetest3",
