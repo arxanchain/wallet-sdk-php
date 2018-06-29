@@ -356,6 +356,14 @@ spentTxDataHash: 已消费交易记录的数据Hash
 spentAt: 消费时间
 ```
 
+## 10.获取秘钥安全码
+```code
+$did : wallet账户id
+$client->tranfserTxn($did,$security_code); 返回值0表示正常
+$security_code = "我爱你中国", // 获取秘钥安全码
+
+```
+
 ## 11.错误返回试例
 ```code
 {

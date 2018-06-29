@@ -44,6 +44,8 @@ interface WalletApi {
     function saveKeyPair($did,$key_pair,&$security_code);
     // 获取私钥
     function getPrivateKey($did,$security_code,&$private);
+    // 获取安全码
+    function getAssistCode($did,&$security_code);
     // 删除秘钥对
     //function deleteKeyPair();
     // 修改安全码
@@ -892,6 +894,16 @@ class WalletClient implements WalletApi {
             return $ret;
         }
         $private = $res["Payload"]["private_key"];
+        return 0;
+    }
+
+    function getAssistCode($did,&$security_code){
+        $ret = $this->safebox_client->recoverAssistCode($did,$res);
+        if($ret != 0){
+            $security_code = "";
+            return $ret;
+        }
+        $private = $res["Payload"]["code"];
         return 0;
     }
 
