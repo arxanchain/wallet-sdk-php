@@ -15,7 +15,7 @@ $client = new WalletClient($host,$api_key,$cert_path,$did);
 
 $register_body1 = array(
     "type"=> "Organization",
-    "access"=> "culturetest3",
+    "access"=> "culture13",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -23,7 +23,7 @@ $register_body1 = array(
 
 $register_body2 = array(
     "type"=> "Organization",
-    "access"=> "culturetest4",
+    "access"=> "culture14",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -102,7 +102,7 @@ $sign_poe2= array(
     "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 );
 
-$ret = $client->createPOE($poe1,$sign_poe1,$poe_res2);
+$ret = $client->createPOE($poe2,$sign_poe2,$poe_res2);
 if ($ret !=0){
     "create poe error\n";
     return;
@@ -128,33 +128,6 @@ $client->issuerAsset($asset,$sign_asset,$asset_res);
 echo "issuerAsset succ:\n";
 var_dump($asset_res);
 echo "\n";
-
-
-// 转让资产
-
-$transfer_asset = array(
-    "from"=> $register_res1["Payload"]["id"],
-    "to"=> $register_res2["Payload"]["id"],
-    "assets"=>array(
-        $asset_res["Payload"]["token_id"],   
-    ), 
-);
-
-
-$sign_asset = array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
-); 
-
-$ret = $client->transferAsset($transfer_asset,$sign_asset,$transf_asset_res);
-if($ret!=0){
-    echo "transfer asset error\n";
-}
-echo("transfer asset succ:\n");
-var_dump($transf_asset_res);
-echo "\n";
-
 
 $transfer_token = array(
     "from"=> $register_res1["Payload"]["id"],
@@ -182,6 +155,33 @@ echo "transfer ctoken succ:\n";
 var_dump($transf_token_res);
 echo "\n";
 
+
+
+/*
+// 转让资产
+$transfer_asset = array(
+    "from"=> $register_res1["Payload"]["id"],
+    "to"=> $register_res2["Payload"]["id"],
+    "assets"=>array(
+        $asset_res["Payload"]["token_id"],   
+    ), 
+);
+
+
+$sign_asset = array(
+    "did"=> $register_res1["Payload"]["id"],
+    "nonce"=> "nonce",
+    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
+); 
+
+$ret = $client->transferAsset($transfer_asset,$sign_asset,$transf_asset_res);
+if($ret!=0){
+    echo "transfer asset error\n";
+}
+echo("transfer asset succ:\n");
+var_dump($transf_asset_res);
+echo "\n";
+
 $client->getWalletInfo($register_res1["Payload"]["id"],$wallet1);
 echo "wallet1 info:\n";
 var_dump($wallet1);
@@ -191,6 +191,7 @@ $client->getWalletBalance($register_res2["Payload"]["id"],$wallet2);
 echo "wallet1 balance:\n";
 var_dump($wallet2);
 echo "\n";
+ */
 
 /*
 $file = "./1.php";
