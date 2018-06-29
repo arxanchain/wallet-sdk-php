@@ -346,6 +346,16 @@ txType: 交易类型
 spentTxDataHash: 已消费交易记录的数据Hash
 spentAt: 消费时间
 ```
+
+## 错误返回试例
+```code
+{
+    ["ErrCode"]=> 1000,
+    ["ErrMessage"]=> "InvalidParamsErrCode",
+    ["Method"]=> "",
+    ["Payload"]=> NULL,
+}
+```
 以上接口可以满足绝大部分的业务场景，如果以上接口不能满足您的需求，可以调用我们的高级接口，若还不能满足，请联系我们的工作人员
 
 # 具体用法请参考test.php
