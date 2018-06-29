@@ -322,12 +322,20 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
+        echo "start:\n";
+        var_dump($sign_body);
+        echo "\n";
+
         // 1.发送预发行接口
         $ret = $this->sendIssueAssetProposal($transfer_body,$sign_body,$prepare);
         if($ret !=0){
             $response = errorResponse($ret);
             return $ret;
         }
+
+        echo "end:\n";
+        var_dump($sign_body);
+        echo "\n";
         
         // 2.签名
         $old_script = $prepare["Payload"][0]["txout"][0]["script"];
@@ -341,13 +349,12 @@ class WalletClient implements WalletApi {
 
         $ret = $this->processTx($txs,$data);
         if ($ret != 0){
-            $response = errorResponse($ret);
+            $response = $data;
             return $ret;
         }
         
         $response = $data;
         return $response["ErrCode"];
-        
     }
 
     // 转让token
@@ -361,7 +368,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-
+        
         // 1.发送预发行接口
         $ret = $this->sendTransferCTokenProposal($transfer_body,$sign_body,$prepare);
         if($ret !=0){
@@ -369,8 +376,8 @@ class WalletClient implements WalletApi {
             $response = errorResponse($ret);
             return $ret;
         }
-
-        // 重新设置签名值,将 script字段还原
+        
+        // 2.签名
         $old_script = $prepare["Payload"][0]["txout"][0]["script"];
         //echo "old script: ",$old_script,"\n";
         $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
