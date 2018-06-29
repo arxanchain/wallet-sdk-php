@@ -117,7 +117,7 @@ $response 为请求返回的多维数组
         ["endpoint"]=> "", 
         ["key_pair"]=> {},
         ["created"]=> 1529906262, //创建资产的时间戳
-        ["token_id"]=> "", 发行的数字凭证ID
+        ["token_id"]=> "4575a3209a8d9144b59b4e8d9a87288efc8eac2d0d4a935209a64dd2cf6ab228", 发行的数字凭证ID,用于转让
         ["transaction_ids"]=> {
             "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",
         }
@@ -153,11 +153,9 @@ $response 为请求返回的多维数组
         ["endpoint"]=> "", 
         ["key_pair"]=> {},
         ["created"]=> 1529906262, //创建资产的时间戳
-        ["token_id"]=> "993773421ce32574491a86b69a001e30da11350bf162c49ff8e8e71972ca0143", 发行数字资产id，用于交易
+        ["token_id"]=> "", 
         ["transaction_ids"]=> {
             "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",
-            "6ff5720541024588fbf67d68d67bc9bb4e7ce5986ea6718c197029e5d258a436",
-            "ca3f4141720cd968dc46afe88ab24ebd300183f1179a38a395891546fbf6d171",
     }
 }
 ```
@@ -168,7 +166,7 @@ $data = array(
     "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
     "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
     "assets"=> [
-        "1f38a7a1-2c79-465e-a4c0-0038e25c7edg"(必填) //issuer_asset 返回的token_id
+        "did:axn:c9f0a2a0-8428-49da-b606-28c66baa1423"(必填) //poe资产id
     ]
 )
 $signature = array(
@@ -203,7 +201,7 @@ $data = array(
     "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
     "tokens"=> [
         {
-            "token_id": "1f38a7a1-2c79-465e-a4c0-0038e25c7edg",(必填)
+            "token_id": "1f38a7a1-2c79-465e-a4c0-0038e25c7edg",(必填)issuerCToken 返回的token_id;
             "amount": 5,(必填)
         }
     ],
