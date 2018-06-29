@@ -4,6 +4,7 @@ require_once (__DIR__ . "/../../php-common/cryption/crypto.php");
 require_once (__DIR__ . "/../../php-common/cryption/sign.php");
 require_once (__DIR__ . "/../../php-common/error/error.php");
 require_once (__DIR__ . "/../../php-common/log/log.php");
+require_once (__DIR__ . "/../../safebox-sdk-php1/api/safebox.php");
 require_once (__DIR__ . "/common.php");
 
 interface WalletApi {
@@ -13,32 +14,41 @@ interface WalletApi {
     function getWalletInfo($did,&$response);
     // 获取钱包余额
     function getWalletBalance($did,&$response); 
-    // 创建数字资产
-    function createPOE($poe_body,$sign_body,&$response);
-    // 查询数字资产存在 
+    // 查询数字资产存证 
     function getAssetInfo($did,&$response);
+    // 创建数字资产
+    function createPOE($poe_body,$sign_body,$security_code,&$response);
     // 上传数字资产凭证
     //function uploadPOEFile($asset_id,$file,$mode,&$response); //api暂时没处理
     // 发行资产
-    function issuerAsset($asset_body,$sign_body,&$response);
+    function issuerAsset($asset_body,$sign_body,$security_code,&$response);
     // 发行token
-    function issuerCToken($ctoken_body,$sign_body,&$response);
+    function issuerCToken($ctoken_body,$sign_body,$security_code,&$response);
     // 转让资产
-    function transferAsset($transfer_body,$sign_body,&$response);
+    function transferAsset($transfer_body,$sign_body,$security_code,&$response);
     // 转移ctoken
-    function transferCToken($transfer_body,$sign_body,&$response);
+    function transferCToken($transfer_body,$sign_body,$security_code,&$response);
     // 交易历史
     function tranfserTxn($did,$mode,&$response);
     // 预发行数字凭证
-    function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response);
+    function sendIssueCTokenProposal($ctoken_body,$sign_body,$security_code,&$response);
     // 预发行数字资产
-    function sendIssueAssetProposal($asset_body,$sign_body,&$response);
+    function sendIssueAssetProposal($asset_body,$sign_body,$security_code,&$response);
     // 预转让数字凭证
-    function sendTransferCTokenProposal($transfer_body,$sign_body,&$response);
+    function sendTransferCTokenProposal($transfer_body,$sign_body,$security_code,&$response);
     // 预转让数字资产
-    function sendTransferAssetProposal($transfer_body,$sign_body,&$response);
+    function sendTransferAssetProposal($transfer_body,$sign_body,$security_code,&$response);
     // 交易处理
     function processTx($txs,&$response);
+    // 保存秘钥
+    function saveKeyPair($did,$key_pair,&$security_code);
+    // 获取私钥
+    function getPrivateKey($did,$security_code,&$private);
+    // 删除秘钥对
+    //function deleteKeyPair();
+    // 修改安全码
+    //function updateKeyPair();
+
 }
 
 class WalletClient implements WalletApi {
@@ -51,6 +61,7 @@ class WalletClient implements WalletApi {
     var $ecc_client;
     var $sign_client;
     var $header;
+    var $safebox_client;
 
     function __construct($host,$api_key,$cert_path,$did){
         $this->host = $host;
@@ -61,6 +72,7 @@ class WalletClient implements WalletApi {
         $this->curl_get = curl_init();
         $this->ecc_client = new encrypt($cert_path,$api_key);
         $this->sign_client = new Signature();
+        $this->safebox_client = new SafeBoxClient($host,$api_key,$cert_path);
 
         // 设置http请求头
         $this->header = array();
@@ -124,11 +136,21 @@ class WalletClient implements WalletApi {
             return $ret;
         }
 
+        // 保存秘钥
+        $ret = $this->saveKeyPair($data["Payload"]["id"],$data["Payload"]["key_pair"],$code);
+        if($ret !=0){
+            // 保存秘钥失败
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $data["Payload"]["key_pair"] = NULL;
+        $data["Payload"]["security_code"] = $code;
+
         $response = $data;
         return $response["ErrCode"];
     }
 
-    function createPOE($poe_body,$sign_body,&$response) {
+    function createPOE($poe_body,$sign_body,$security_code,&$response) {
         if (empty($poe_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -139,8 +161,20 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
+        //获取秘钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
+
         // 签名
-        $ret = $this->sign_client->sign($poe_body,$sign_body,$signed_data);
+        $ret = $this->sign_client->sign($poe_body,$sign_param,$signed_data);
         if ($ret!=0){
             $response = errorResponse($ret);
             return $ret;
@@ -231,7 +265,7 @@ class WalletClient implements WalletApi {
     */
     
     // 发行资产
-    function issuerAsset($asset_body,$sign_body,&$response){
+    function issuerAsset($asset_body,$sign_body,$security_code,&$response){
         if (empty($asset_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -243,16 +277,28 @@ class WalletClient implements WalletApi {
         }
         
         //1.先执行 sendIssueAssetProposal
-        $ret = $this->sendIssueAssetProposal($asset_body,$sign_body,$prepare);
+        $ret = $this->sendIssueAssetProposal($asset_body,$sign_body,$security_code,$prepare);
         if ($ret != 0){
             $response = errorResponse($ret);
             return $ret;
         }
 
+        //获取秘钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
+
         //2. 签名
         for($i = 0;$i<count($prepare["Payload"][0]["txout"]);$i++){
             $old_script = $prepare["Payload"][0]["txout"][$i]["script"];
-            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            $ret = $this->sign_client->signTx($old_script,$sign_param,$new_script);
             if($ret != 0){
                 $response = errorResponse($ret);
                 return $ret;
@@ -276,7 +322,7 @@ class WalletClient implements WalletApi {
     }
 
     // 发行token
-    function issuerCToken($ctoken_body,$sign_body,&$response){
+    function issuerCToken($ctoken_body,$sign_body,$security_code,&$response){
         if (empty($ctoken_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -288,16 +334,28 @@ class WalletClient implements WalletApi {
         }
 
         // 1.发送预发行接口
-        $ret = $this->sendIssueCTokenProposal($ctoken_body,$sign_body,$prepare);
+        $ret = $this->sendIssueCTokenProposal($ctoken_body,$sign_body,$security_code,$prepare);
         if($ret !=0){
             $response = errorResponse($ret);
             return $ret;
         }
 
+        //获取秘钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
+
         // 2.签名
         for($i = 0;$i<count($prepare["Payload"]["txs"][0]["txout"]);$i++){
             $old_script = $prepare["Payload"]["txs"][0]["txout"][$i]["script"];
-            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            $ret = $this->sign_client->signTx($old_script,$sign_param,$new_script);
             if($ret != 0){
                 $response = errorResponse($ret);
                 return $ret;
@@ -322,7 +380,7 @@ class WalletClient implements WalletApi {
     }
 
     // 转让资产
-    function transferAsset($transfer_body,$sign_body,&$response){
+    function transferAsset($transfer_body,$sign_body,$security_code,&$response){
         if (empty($transfer_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -334,16 +392,28 @@ class WalletClient implements WalletApi {
         }
 
         // 1.发送预发行接口
-        $ret = $this->sendTransferAssetProposal($transfer_body,$sign_body,$prepare);
+        $ret = $this->sendTransferAssetProposal($transfer_body,$sign_body,$security_code,$prepare);
         if($ret !=0){
             $response = errorResponse($ret);
             return $ret;
         }
 
+          //获取秘钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
+
         // 2.签名
         for($i = 0;$i<count($prepare["Payload"][0]["txout"]);$i++){
             $old_script = $prepare["Payload"][0]["txout"][$i]["script"];
-            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            $ret = $this->sign_client->signTx($old_script,$sign_param,$new_script);
             if($ret != 0){
                 $response = errorResponse($ret);
                 return $ret;
@@ -367,7 +437,7 @@ class WalletClient implements WalletApi {
     }
 
     // 转让token
-    function transferCToken($transfer_body,$sign_body,&$response){
+    function transferCToken($transfer_body,$sign_body,$security_code,&$response){
         if (empty($transfer_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -379,16 +449,28 @@ class WalletClient implements WalletApi {
         }
 
         // 1.发送预发行接口
-        $ret = $this->sendTransferCTokenProposal($transfer_body,$sign_body,$prepare);
+        $ret = $this->sendTransferCTokenProposal($transfer_body,$sign_body,$security_code,$prepare);
         if($ret !=0){
             $response = errorResponse($ret);
             return $ret;
         }
 
+        //获取秘钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
+
         // 2.签名
         for($i = 0;$i<count($prepare["Payload"][0]["txout"]);$i++){
             $old_script = $prepare["Payload"][0]["txout"][$i]["script"];
-            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            $ret = $this->sign_client->signTx($old_script,$sign_param,$new_script);
             if($ret != 0){
                 $response = errorResponse($ret);
                 return $ret;
@@ -530,7 +612,7 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
-    function sendIssueCTokenProposal($ctoken_body,$sign_body,&$response){
+    function sendIssueCTokenProposal($ctoken_body,$sign_body,$security_code,&$response){
         if (empty($ctoken_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -540,9 +622,19 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-
+          //获取秘钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
         // 签名
-        $ret = $this->sign_client->sign($ctoken_body,$sign_body,$signed_data);
+        $ret = $this->sign_client->sign($ctoken_body,$sign_param,$signed_data);
         if ($ret != 0){
             $response = errorResponse($ret);
             return $ret;
@@ -577,7 +669,7 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
-    function sendIssueAssetProposal($asset_body,$sign_body,&$response){
+    function sendIssueAssetProposal($asset_body,$sign_body,$security_code,&$response){
         if (empty($asset_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -588,8 +680,18 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
         // 签名
-        $ret = $this->sign_client->sign($asset_body,$sign_body,$signed_data);
+        $ret = $this->sign_client->sign($asset_body,$sign_param,$signed_data);
         if ($ret != 0){
             $response = errorResponse($ret);
             return $ret;
@@ -624,7 +726,7 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
-    function sendTransferCTokenProposal($transfer_body,$sign_body,&$response){
+    function sendTransferCTokenProposal($transfer_body,$sign_body,$security_code,&$response){
         if (empty($transfer_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -635,8 +737,18 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
         // 签名
-        $ret = $this->sign_client->sign($transfer_body,$sign_body,$signed_data);
+        $ret = $this->sign_client->sign($transfer_body,$sign_param,$signed_data);
         if ($ret != 0){
             $response = errorResponse($ret);
             return $ret;
@@ -671,7 +783,7 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
-    function sendTransferAssetProposal($transfer_body,$sign_body,&$response){
+    function sendTransferAssetProposal($transfer_body,$sign_body,$security_code,&$response){
         if (empty($transfer_body)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -682,8 +794,20 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
+        // 获取私钥
+        $ret = $this->getPrivateKey($sign_body["did"],$security_code,$private);
+        if($ret != 0){
+            $response = errorResponse($ret);
+            return $ret;
+        }
+        $sign_param = array(
+            "did" => $sign_body["did"],
+            "nonce" => $sign_body["nonce"],
+            "key" => $private,
+        );
+
         // 签名
-        $ret = $this->sign_client->sign($transfer_body,$sign_body,$signed_data);
+        $ret = $this->sign_client->sign($transfer_body,$sign_param,$signed_data);
         if ($ret != 0){
             $response = errorResponse($ret);
             return $ret;
@@ -749,6 +873,26 @@ class WalletClient implements WalletApi {
 
         $response = $data;
         return $response["ErrCode"];
+    }
+
+    function saveKeyPair($did,$key_pair,&$security_code){
+        $ret = $this->safebox_client->trusteeKeyPair($did,$key_pair,$res);
+        if($ret != 0){
+            $security_code = "";
+            return $ret;
+        }
+        $security_code = $res["Payload"]["code"];
+        return 0;
+    }
+
+    function getPrivateKey($did,$security_code,&$private){
+        $ret = $this->safebox_client->queryPrivateKey($did,$security_code,$res);
+        if($ret != 0){
+            $private = "";
+            return $ret;
+        }
+        $private = $res["Payload"]["private_key"];
+        return 0;
     }
 
     // 析构函数

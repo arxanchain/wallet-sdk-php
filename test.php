@@ -15,7 +15,7 @@ $client = new WalletClient($host,$api_key,$cert_path,$did);
 
 $register_body1 = array(
     "type"=> "Organization",
-    "access"=> "culture50",
+    "access"=> "culture60",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -23,7 +23,7 @@ $register_body1 = array(
 
 $register_body2 = array(
     "type"=> "Organization",
-    "access"=> "culture51",
+    "access"=> "culture61",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -39,8 +39,10 @@ echo "register wallet1 info:\n";
 var_dump($register_res2);
 echo "\n";
 
-//echo "res:\n",$res,"\n";
+$scode1 = $register_res1["Payload"]["security_code"]; 
+$scode2 = $register_res2["Payload"]["security_code"]; 
 
+//echo "res:\n",$res,"\n";
 
 
 $poe1 = array(
@@ -51,11 +53,10 @@ $poe1 = array(
 $sign_poe1= array(
     "did"=> $register_res1["Payload"]["id"],
     "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 );
 
 // 创建资产
-$ret = $client->createPOE($poe1,$sign_poe1,$poe_res1);
+$ret = $client->createPOE($poe1,$sign_poe1,$scode1,$poe_res1);
 if ($ret !=0){
     "create poe error\n";
     return ;
@@ -76,10 +77,9 @@ $token= array(
 $sign_token= array(
     "did"=> $register_res1["Payload"]["id"],
     "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 );
 
-$ret = $client->issuerCToken($token,$sign_token,$token_res);
+$ret = $client->issuerCToken($token,$sign_token,$scode1,$token_res);
 if ($ret !=0){
     "issuer token error\n";
     return ;
@@ -99,10 +99,9 @@ $poe2 = array(
 $sign_poe2= array(
     "did"=> $register_res1["Payload"]["id"],
     "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 );
 
-$ret = $client->createPOE($poe2,$sign_poe2,$poe_res2);
+$ret = $client->createPOE($poe2,$sign_poe2,$scode1,$poe_res2);
 if ($ret !=0){
     "create poe error\n";
     return;
@@ -121,10 +120,9 @@ $asset= array(
 $sign_asset= array(
     "did"=> $register_res1["Payload"]["id"],
     "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 );
 
-$client->issuerAsset($asset,$sign_asset,$asset_res);
+$client->issuerAsset($asset,$sign_asset,$scode1,$asset_res);
 echo "issuerAsset succ:\n";
 var_dump($asset_res);
 echo "\n";
@@ -143,10 +141,9 @@ $transfer_token = array(
 $sign_asset= array(
     "did"=> $register_res1["Payload"]["id"],
     "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 ); 
 
-$ret = $client->transferCToken($transfer_token,$sign_asset,$transf_token_res);
+$ret = $client->transferCToken($transfer_token,$sign_asset,$scode1,$transf_token_res);
 if ($ret!=0){
     echo "transfer ctoken error\n";
     return;
@@ -170,10 +167,9 @@ $transfer_asset = array(
 $sign_asset = array(
     "did"=> $register_res1["Payload"]["id"],
     "nonce"=> "nonce",
-    "key"=> $register_res1["Payload"]["key_pair"]["private_key"],
 ); 
 
-$ret = $client->transferAsset($transfer_asset,$sign_asset,$transf_asset_res);
+$ret = $client->transferAsset($transfer_asset,$sign_asset,$scode1,$transf_asset_res);
 if($ret!=0){
     echo "transfer asset error\n";
 }
@@ -190,5 +186,4 @@ $client->getWalletBalance($register_res2["Payload"]["id"],$wallet2);
 echo "wallet1 balance:\n";
 var_dump($wallet2);
 echo "\n";
-
 

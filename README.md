@@ -33,12 +33,10 @@ $response 为请求返回的多维数组
         ["message"]=> "",
         ["id"]=> "did:axn:53915ff7-16b4-432e-b3f4-8d3cb44b5240", //分配给钱包的唯一ID
         ["endpoint"]=> "06aa7f0690ef573a9bde61d312ff54036e267e45e856571215e043862d788058", //分配给钱包的地址
-        ["key_pair"]=> {
-            ["private_key"]=> "Ob6a9aPHBNb5svU4CNSja3exzxDGXiXMERFrO584VSB1k/kvqQvqe6+6pX3DNW2/XH9Ak5YlDVxnH76fIVjOpQ==",
-            ["public_key"]=> "dZP5L6kL6nuvuqV9wzVtv1x/QJOWJQ1cZx++nyFYzqU=",
-        }
+        ["key_pair"]=>NULL,
         ["created"]=> 1529906262, //创建钱包的时间戳
         ["token_id"]=> "",
+        ["security_code"]=> "我是中国人", //秘钥安全码，用于检索秘钥
         ["transaction_ids"]=> {
             "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",
             "05759e0b0c6c7e76faf1902598270480ab006612678dbd0396ed427a86a81bc0",
@@ -62,10 +60,11 @@ $poe = array(
 $signature = array(
     "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //owner did
     "nonce"=> "nonce",(必填) //随机数
-    "key"=> "Ob6a9aPHBNb5svU4CNSja3exzxDGXiXMERFrO584VSB1k/kvqQvqe6+6pX3DNW2/XH9Ak5YlDVxnH76fIVjOpQ==",(必填) //owner private_key
 );
 
-$ret = $client->createPOE($poe,$signature,$response); 返回值0表示正常
+$security_code //注册wallet账户返回的秘钥安全码，owner
+
+$ret = $client->createPOE($poe,$signature,$security_code,$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
     ["ErrCode"]=> 0,
@@ -101,10 +100,11 @@ $ctoken = array(
 $signature = array(
     "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //owner did
     "nonce"=> "nonce",(必填) //随机数
-    "key"=> "Ob6a9aPHBNb5svU4CNSja3exzxDGXiXMERFrO584VSB1k/kvqQvqe6+6pX3DNW2/XH9Ak5YlDVxnH76fIVjOpQ==",(必填) //owner private_key
 );
 
-$ret = $client->issuerCToken($token,$signature,$token_res); 返回值0表示正常
+$security_code //注册wallet账户返回的秘钥安全码，issuer
+
+$ret = $client->issuerCToken($token,$signature,$security_code，$token_res); 返回值0表示正常
 $response 为请求返回的多维数组
 {
     ["ErrCode"]=> 0,
@@ -135,12 +135,15 @@ $asset = array(
         "amount": 10
     }
 )
+
 $signature = array(
     "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //owner did
     "nonce"=> "nonce",(必填) //随机数
-    "key"=> "Ob6a9aPHBNb5svU4CNSja3exzxDGXiXMERFrO584VSB1k/kvqQvqe6+6pX3DNW2/XH9Ak5YlDVxnH76fIVjOpQ==",(必填) //owner private_key
 );
-$ret = $client->issuerAsset($asset,$signature,$response); 返回值0表示正常
+
+$security_code //注册wallet账户返回的秘钥安全码，issuer
+
+$ret = $client->issuerAsset($asset,$signature,$security_code，$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
     ["ErrCode"]=> 0,
@@ -172,9 +175,11 @@ $data = array(
 $signature = array(
     "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //issuer did
     "nonce"=> "nonce",(必填) //随机数
-    "key"=> "Ob6a9aPHBNb5svU4CNSja3exzxDGXiXMERFrO584VSB1k/kvqQvqe6+6pX3DNW2/XH9Ak5YlDVxnH76fIVjOpQ==",(必填) //issuer private_key
 );
-$ret = $client->transferAsset($data,$signature,$response); 返回值0表示正常
+
+$security_code //注册wallet账户返回的秘钥安全码，from
+
+$ret = $client->transferAsset($data,$signature,$security_code,$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
     ["ErrCode"]=> 0,
@@ -206,12 +211,15 @@ $data = array(
         }
     ],
 )
+
 $signature = array(
     "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //issuer did
     "nonce"=> "nonce",(必填) //随机数
-    "key"=> "Ob6a9aPHBNb5svU4CNSja3exzxDGXiXMERFrO584VSB1k/kvqQvqe6+6pX3DNW2/XH9Ak5YlDVxnH76fIVjOpQ==",(必填) //issuer private_key
 );
-$ret = $client->transferCToken($data,$signature,$response); 返回值0表示正常
+
+$security_code //注册wallet账户返回的秘钥安全码，from
+
+$ret = $client->transferCToken($data,$signature,$security_code,$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
     ["ErrCode"]=> 0,
@@ -283,6 +291,7 @@ $response 为请求返回的多维数组
 ```code
 $did : 账户id
 $type : 类型，in表示输入，out表示输出,""表示获取所有
+
 $client->tranfserTxn($did,$type,$response); 返回值0表示正常
 $response 为请求返回的多维数组
 {
