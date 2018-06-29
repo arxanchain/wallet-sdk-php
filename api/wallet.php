@@ -245,15 +245,20 @@ class WalletClient implements WalletApi {
         //1.先执行 sendIssueAssetProposal
         $ret = $this->sendIssueAssetProposal($asset_body,$sign_body,$prepare);
         if ($ret != 0){
-            echo "send asset proposal err" , "\n";
             $response = errorResponse($ret);
             return $ret;
         }
 
         //2. 签名
-        $old_script = $prepare["Payload"][0]["txout"][0]["script"];
-        $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
-        $prepare["Payload"][0]["txout"][0]["script"] = $new_script;
+        for($i = 0;$i<count($prepare["Payload"][0]["txout"]);$i++){
+            $old_script = $prepare["Payload"][0]["txout"][$i]["script"];
+            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            if($ret != 0){
+                $response = errorResponse($ret);
+                return $ret;
+            }
+            $prepare["Payload"][0]["txout"][$i]["script"] = $new_script;
+        }
 
         //3.执行 processTx
         $txs = array(
@@ -290,9 +295,15 @@ class WalletClient implements WalletApi {
         }
 
         // 2.签名
-        $old_script = $prepare["Payload"]["txs"][0]["txout"][0]["script"];
-        $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
-        $prepare["Payload"]["txs"][0]["txout"][0]["script"] = $new_script;
+        for($i = 0;$i<count($prepare["Payload"]["txs"][0]["txout"]);$i++){
+            $old_script = $prepare["Payload"]["txs"][0]["txout"][$i]["script"];
+            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            if($ret != 0){
+                $response = errorResponse($ret);
+                return $ret;
+            }
+            $prepare["Payload"]["txs"][0]["txout"][$i]["script"] = $new_script;
+        }
         
         // 3..确认操作
         $txs = array(
@@ -325,15 +336,20 @@ class WalletClient implements WalletApi {
         // 1.发送预发行接口
         $ret = $this->sendTransferAssetProposal($transfer_body,$sign_body,$prepare);
         if($ret !=0){
-            echo "transfer asset prepare error\n";
             $response = errorResponse($ret);
             return $ret;
         }
 
         // 2.签名
-        $old_script = $prepare["Payload"][0]["txout"][0]["script"];
-        $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
-        $prepare["Payload"][0]["txout"][0]["script"] = $new_script;
+        for($i = 0;$i<count($prepare["Payload"][0]["txout"]);$i++){
+            $old_script = $prepare["Payload"][0]["txout"][$i]["script"];
+            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            if($ret != 0){
+                $response = errorResponse($ret);
+                return $ret;
+            }
+            $prepare["Payload"][0]["txout"][$i]["script"] = $new_script;
+        }
 
         // 3.确认操作
         $txs = array(
@@ -361,38 +377,39 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-        
+
         // 1.发送预发行接口
         $ret = $this->sendTransferCTokenProposal($transfer_body,$sign_body,$prepare);
         if($ret !=0){
-            echo("sendTransferCTokenProposal error\n");
             $response = errorResponse($ret);
             return $ret;
         }
-        
+
         // 2.签名
-        $old_script = $prepare["Payload"][0]["txout"][0]["script"];
-        $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
-        $prepare["Payload"][0]["txout"][0]["script"] = $new_script;
+        for($i = 0;$i<count($prepare["Payload"][0]["txout"]);$i++){
+            $old_script = $prepare["Payload"][0]["txout"][$i]["script"];
+            $ret = $this->sign_client->signTx($old_script,$sign_body,$new_script);
+            if($ret != 0){
+                $response = errorResponse($ret);
+                return $ret;
+            }
+            $prepare["Payload"][0]["txout"][$i]["script"] = $new_script;
+        }
         
-        // 3..确认操作
+        // 3.确认操作
         $txs = array(
             "txs"=> $prepare["Payload"],
         );
 
-        echo "process tx new request:\n";
-        var_dump($txs);
-        echo "\n";
-
         $ret = $this->processTx($txs,$data);
         if ($ret != 0){
-            echo "process tx error\n";
             $response = $data;
             return $ret;
         }
-        
+
         $response = $data;
         return $response["ErrCode"];
+
     }
 
     function tranfserTxn($did,$type,&$response){
@@ -413,7 +430,6 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
-        //echo "url = ",$url,"\n";
         //发送get请求
         curl_setopt($this->curl_get, CURLOPT_URL, $url);
 

@@ -15,7 +15,7 @@ $client = new WalletClient($host,$api_key,$cert_path,$did);
 
 $register_body1 = array(
     "type"=> "Organization",
-    "access"=> "culture13",
+    "access"=> "culture50",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -23,7 +23,7 @@ $register_body1 = array(
 
 $register_body2 = array(
     "type"=> "Organization",
-    "access"=> "culture14",
+    "access"=> "culture51",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -157,13 +157,12 @@ echo "\n";
 
 
 
-/*
 // 转让资产
 $transfer_asset = array(
     "from"=> $register_res1["Payload"]["id"],
     "to"=> $register_res2["Payload"]["id"],
     "assets"=>array(
-        $asset_res["Payload"]["token_id"],   
+        $poe_res2["Payload"]["id"]
     ), 
 );
 
@@ -191,20 +190,5 @@ $client->getWalletBalance($register_res2["Payload"]["id"],$wallet2);
 echo "wallet1 balance:\n";
 var_dump($wallet2);
 echo "\n";
- */
 
-/*
-$file = "./1.php";
-$mode = true;
-
-$ret = $client->uploadPOEFile($asset,$file,$mode,$res1);
-if ($ret!=0){
-    echo "upload poe file error \n";
-}
-
-echo "uploadPOEFile succ\n";
-var_dump($res1);
- */
-
-//var_dump($res);
 
