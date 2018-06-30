@@ -4,18 +4,18 @@ require (__DIR__ . "/api/wallet.php");
 
 $host = "http://103.67.193.150:15007";
 $api_key = "eZUDImzTp1528874024";
-$cert_path = "/home/carl/workspace/src/github.com/arxanchain/php-common/cryption/cert/client_certs";
+$cert_path = "/home/ssong/workspace/src/github.com/arxanchain/php-common/cryption/cert/client_certs";
 $did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
 
 
 $client = new WalletClient($host,$api_key,$cert_path,$did);
 
-//$client->set_header("Bc-Invoke-Mode","sync");
-//$client->set_header("Callback-Url","http://121.69.8.22:8066");
+//$client->setHeader("Bc-Invoke-Mode","sync");
+//$client->setHeader("Callback-Url","http://121.69.8.22:8066");
 
 $register_body1 = array(
     "type"=> "Organization",
-    "access"=> "culture60",
+    "access"=> "culture72",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -23,7 +23,7 @@ $register_body1 = array(
 
 $register_body2 = array(
     "type"=> "Organization",
-    "access"=> "culture61",
+    "access"=> "culture73",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -186,4 +186,3 @@ $client->getWalletBalance($register_res2["Payload"]["id"],$wallet2);
 echo "wallet1 balance:\n";
 var_dump($wallet2);
 echo "\n";
-
