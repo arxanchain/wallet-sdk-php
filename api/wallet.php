@@ -4,7 +4,7 @@ require_once (__DIR__ . "/../../php-common/cryption/crypto.php");
 require_once (__DIR__ . "/../../php-common/cryption/sign.php");
 require_once (__DIR__ . "/../../php-common/error/error.php");
 require_once (__DIR__ . "/../../php-common/log/log.php");
-require_once (__DIR__ . "/../../safebox-sdk-php1/api/safebox.php");
+require_once (__DIR__ . "/../../safebox-sdk-php/api/safebox.php");
 require_once (__DIR__ . "/common.php");
 
 interface WalletApi {
