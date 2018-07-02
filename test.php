@@ -1,6 +1,7 @@
 <?php
 
-require (__DIR__ . "/api/wallet.php");
+require_once (__DIR__ . "/api/wallet.php");
+require_once (__DIR__ . "/../php-common/structs/struct.php");
 
 $host = "http://103.67.193.150:15007";
 $api_key = "eZUDImzTp1528874024";
@@ -8,14 +9,14 @@ $cert_path = "/home/carl/workspace/src/github.com/arxanchain/php-common/cryption
 $did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
 
 
-$client = new WalletClient($host,$api_key,$cert_path,$did);
+$client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",""));
 
 //$client->setHeader("Bc-Invoke-Mode","sync");
 //$client->setHeader("Callback-Url","http://121.69.8.22:8066");
 
 $register_body1 = array(
     "type"=> "Organization",
-    "access"=> "culture62",
+    "access"=> "culture231",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -23,7 +24,7 @@ $register_body1 = array(
 
 $register_body2 = array(
     "type"=> "Organization",
-    "access"=> "culture63",
+    "access"=> "culture232",
     "phone"=> "18337177372",
     "email"=> "Tom@163.com",
     "secret"=> "SONGsong110",
@@ -49,14 +50,15 @@ $poe1 = array(
     "name"=> "宋松测试1",
     "owner"=> $register_res1["Payload"]["id"],
 );
+$sign1 = new SignParam($register_res1["Payload"]["id"],"nonce","");
+$sign2 = new SignParam($register_res2["Payload"]["id"],"nonce","");
 
-$sign_poe1= array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-);
+echo "sign1:\n";
+var_dump($sign1);
+echo "\n";
 
 // 创建资产
-$ret = $client->createPOE($poe1,$sign_poe1,$scode1,$poe_res1);
+$ret = $client->createPOE($poe1,$sign1,$scode1,$poe_res1);
 if ($ret !=0){
     "create poe error\n";
     return ;
@@ -74,12 +76,7 @@ $token= array(
     "amount"=> 1000,
 );
 
-$sign_token= array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-);
-
-$ret = $client->issuerCToken($token,$sign_token,$scode1,$token_res);
+$ret = $client->issueCToken($token,$sign1,$scode1,$token_res);
 if ($ret !=0){
     "issuer token error\n";
     return ;
@@ -96,12 +93,7 @@ $poe2 = array(
     "owner"=> $register_res1["Payload"]["id"],
 );
 
-$sign_poe2= array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-);
-
-$ret = $client->createPOE($poe2,$sign_poe2,$scode1,$poe_res2);
+$ret = $client->createPOE($poe2,$sign1,$scode1,$poe_res2);
 if ($ret !=0){
     "create poe error\n";
     return;
@@ -117,12 +109,7 @@ $asset= array(
     "asset_id"=> $poe_res2["Payload"]["id"],
 );
 
-$sign_asset= array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-);
-
-$client->issuerAsset($asset,$sign_asset,$scode1,$asset_res);
+$client->issueAsset($asset,$sign1,$scode1,$asset_res);
 echo "issuerAsset succ:\n";
 var_dump($asset_res);
 echo "\n";
@@ -138,14 +125,11 @@ $transfer_token = array(
     ), 
 );
 
-$sign_asset= array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-); 
-
-$ret = $client->transferCToken($transfer_token,$sign_asset,$scode1,$transf_token_res);
+$ret = $client->transferCToken($transfer_token,$sign1,$scode1,$transf_token_res);
 if ($ret!=0){
     echo "transfer ctoken error\n";
+    var_dump($transf_token_res);
+    echo "\n";
     return;
 }
 echo "transfer ctoken succ:\n";
@@ -164,12 +148,7 @@ $transfer_asset = array(
 );
 
 
-$sign_asset = array(
-    "did"=> $register_res1["Payload"]["id"],
-    "nonce"=> "nonce",
-); 
-
-$ret = $client->transferAsset($transfer_asset,$sign_asset,$scode1,$transf_asset_res);
+$ret = $client->transferAsset($transfer_asset,$sign1,$scode1,$transf_asset_res);
 if($ret!=0){
     echo "transfer asset error\n";
 }
