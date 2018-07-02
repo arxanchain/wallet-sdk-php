@@ -94,7 +94,7 @@ class WalletClient implements WalletApi {
 
     // 设置header，用于设置相应是同步还是异步
     function setHeader($mode,$call_back){
-        if($mode == ""||$call_back == ""){
+        if($mode == "" && $call_back == ""){
             return;
         }
 
