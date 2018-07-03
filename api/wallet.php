@@ -115,7 +115,17 @@ class WalletClient implements WalletApi {
     }
 
     function register($register_body,&$response){
-        if (empty($register_body)){
+        if ($register_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($register_body->getType() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($register_body->getsecret() == ""){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -159,7 +169,17 @@ class WalletClient implements WalletApi {
     }
 
     function createPOE($poe_body,$sign_param,$security_code,&$response) {
-        if (empty($poe_body)){
+        if ($poe_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($poe_body->getName() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($poe_body->getOwner() == ""){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -230,12 +250,12 @@ class WalletClient implements WalletApi {
         //$data["file"] = $fur;
 
         $upload_curl = curl_init();
-        
+
         $header = array();
         $header[0] = 'API-Key:' . $this->api_key;
         $header[1] = 'Content-Type:multipart/form-data';
         $header[2] = 'Bc-Invoke-Mode:sync';
-        
+
         $url = $this->host . "/wallet-ng/v1/poe/upload";
         curl_setopt($upload_curl, CURLOPT_URL, $url);
 
@@ -247,7 +267,7 @@ class WalletClient implements WalletApi {
         //表单数据，是正规的表单设置值为非0
         curl_setopt($upload_curl, CURLOPT_POST, 1);
         curl_setopt($upload_curl,CURLOPT_BINARYTRANSFER,true);
-    
+
         // 发送请求
         $res = curl_exec($upload_curl);
         if ($res == ""){
@@ -256,12 +276,12 @@ class WalletClient implements WalletApi {
 
         echo "res = \n",$res,"\n";
         // 加密与验签
-        
+
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret !=0){
             return $ret;
         }
-    
+
         $json_obj = json_decode($res,true);
 
         var_dump($json_obj);
@@ -271,11 +291,26 @@ class WalletClient implements WalletApi {
         return 0;
         //return $response["ErrCode"];
     }
-    */
-    
+     */
+
     // 发行资产
     function issueAsset($asset_body,$sign_param,$security_code,&$response){
-        if (empty($asset_body)){
+        if ($asset_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($asset_body->getIssuer() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($asset_body->getOwner() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($asset_body->getAssetId() == ""){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -289,7 +324,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-        
+
         //1.先执行 sendIssueAssetProposal
         $ret = $this->sendIssueAssetProposal($asset_body,$sign_param,$security_code,$prepare);
         if ($ret != 0){
@@ -320,7 +355,27 @@ class WalletClient implements WalletApi {
 
     // 发行token
     function issueCToken($ctoken_body,$sign_param,$security_code,&$response){
-        if (empty($ctoken_body)){
+        if ($ctoken_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getIssuer() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getOwner() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getAssetId() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getAmount() == ""){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -358,7 +413,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse($ret);
             return $ret;
         }
-        
+
         $response = $data;
         $response["Payload"]["token_id"] = $prepare["Payload"]["token_id"];
         return $response["ErrCode"];
@@ -366,7 +421,22 @@ class WalletClient implements WalletApi {
 
     // 转让资产
     function transferAsset($transfer_body,$sign_param,$security_code,&$response){
-        if (empty($transfer_body)){
+        if ($transfer_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getFrom() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getTo() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if(empty($transfer_body->getAssets())){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -380,7 +450,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-        
+
         // 1.发送预发行接口
         $ret = $this->sendTransferAssetProposal($transfer_body,$sign_param,$security_code,$prepare);
         if($ret !=0){
@@ -404,18 +474,33 @@ class WalletClient implements WalletApi {
             $response = $data;
             return $ret;
         }
-        
+
         $response = $data;
         return $response["ErrCode"];
     }
 
     // 转让token
     function transferCToken($transfer_body,$sign_param,$security_code,&$response){
-        if (empty($transfer_body)){
+        if ($transfer_body == NULL){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
 
+        if($transfer_body->getFrom() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getTo() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if(empty($transfer_body->getTokens())){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+        
         if ($sign_param == NULL){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
@@ -438,7 +523,7 @@ class WalletClient implements WalletApi {
         if($ret !=0){
             return $ret;
         }
-            
+
         // 3.确认操作
         $txs = array(
             "txs"=> $prepare["Payload"],
@@ -574,7 +659,27 @@ class WalletClient implements WalletApi {
     }
 
     function sendIssueCTokenProposal($ctoken_body,$sign_param,$security_code,&$response){
-        if (empty($ctoken_body)){
+        if ($ctoken_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getIssuer() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getOwner() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getAssetId() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($ctoken_body->getAmount() == ""){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -588,7 +693,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-          //获取秘钥
+        //获取秘钥
         $ret = $this->getPrivateKey($sign_param->getCreator(),$security_code,$private);
         if($ret != 0){
             $response = errorResponse($ret);
@@ -632,7 +737,22 @@ class WalletClient implements WalletApi {
     }
 
     function sendIssueAssetProposal($asset_body,$sign_param,$security_code,&$response){
-        if (empty($asset_body)){
+        if ($asset_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($asset_body->getIssuer() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($asset_body->getOwner() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($asset_body->getAssetId() == ""){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -646,7 +766,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
-    
+
         $ret = $this->getPrivateKey($sign_param->getCreator(),$security_code,$private);
         if($ret != 0){
             $response = errorResponse($ret);
@@ -678,7 +798,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidRequestBody"]);
             return errCode["InvalidRequestBody"];
         }
-        
+
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
             $response = $data;
@@ -690,7 +810,22 @@ class WalletClient implements WalletApi {
     }
 
     function sendTransferCTokenProposal($transfer_body,$sign_param,$security_code,&$response){
-        if (empty($transfer_body)){
+        if ($transfer_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getFrom() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getTo() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if(empty($transfer_body->getTokens())){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -748,7 +883,22 @@ class WalletClient implements WalletApi {
     }
 
     function sendTransferAssetProposal($transfer_body,$sign_param,$security_code,&$response){
-        if (empty($transfer_body)){
+        if ($transfer_body == NULL){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getFrom() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if($transfer_body->getTo() == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        if(empty($transfer_body->getAssets())){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -818,7 +968,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse($ret);
             return $ret;
         }
-        
+
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
         $url = $this->host . "/wallet-ng/v1/transaction/process";

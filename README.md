@@ -8,19 +8,23 @@
 $host:arxan-chain wallet服务的ip与port
 $api_key:注册企业账户返回的api=key
 $cert_path:秘钥与证书目录
-$did:企业wallet账户id
-$client = new WalletClient($host,$api_key,$cert_path,$did);
+$signParam{
+    $did string;
+    $nonce string;
+    $private_key string;
+}:账户签名对象
+
+$client = new WalletClient($host,$api_key,$cert_path,$signParam);
 ```
 
 ## 2. 注册wallet账户
 ```code
-$register = array(
-    "type"=> "Organization", //类型(必填)
-    "access"=> "songtest22", //账户名
-    "phone"=> "18337177372", //电话
-    "email"=> "Tom@163.com", //邮箱
-    "secret"=> "SONGsong110", //账户密码(必填)
-);
+$register = new RegisterWalletBody("Organization","culture243","SONGsong110"); 
+    type string, //类型(必填)
+    access string, //账户名
+    secret string, //账户密码(必填)
+    phone" string , //电话
+    email string ", //邮箱
 
 $ret = $client->register($register,$response); 返回值0表示正常
 $response 为请求返回的多维数组
@@ -48,19 +52,19 @@ $response 为请求返回的多维数组
 
 ## 3.创建数字资产存证
 ```code
-$poe = array(
-    "id"=> "",
-    "name"=> "测试1",(必填)
-    "parent_id"=> "parent-poe-id",
-    "hash"=> "metadata-hash",
-    "owner"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
-    "metadata"=> "GhaHjjdmN2VkNGU5M2NhMzk1MmM4NDgzZGNlN2Y4YTExZmRmOTEyNmU2ZTU2NWMzNzk3MTA1NjkzMWRiMjBkZjEy",
+$poe = new POEBody("宋松测试1",$register_res1["Payload"]["id"]);
+    name string(必填)
+    owner string(必填)
+    parent_id string
+    hash" string
+    metadata string
 );
 
-$signature = array(
-    "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //owner did
-    "nonce"=> "nonce",(必填) //随机数
-);
+$signature{
+    creator string;
+    nonce string;
+    private_key string; 
+}
 
 $security_code //注册wallet账户返回的秘钥安全码，owner
 
@@ -87,20 +91,13 @@ $response 为请求返回的多维数组
 
 ## 4.发行数字凭证
 ```code
-$ctoken = array(
-    "issuer"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填) //发行者
-    "owner"=> "did:axn:65tGAKCERh95uHllllllRU",(必填) //拥有者 
-    "asset_id"=> "did:axn:90tGAKCERh95uHhhsdljRU",(必填) // 资产id
-    "amount"=> 1000,(必填) //数量
-    "fee": {
-        "amount": 10
-    }
+$ctoken = new IssueCTokenBody ("issuer","owner","poe",amount); 
+{
+    issuer string,(必填) //发行者
+    owner string //拥有者 
+    asset_id string,(必填) // 资产id
+    amount string,(必填) //数量
 )
-
-$signature = array(
-    "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //owner did
-    "nonce"=> "nonce",(必填) //随机数
-);
 
 $security_code //注册wallet账户返回的秘钥安全码，issuer
 
@@ -127,19 +124,12 @@ $response 为请求返回的多维数组
 
 ## 5.发行数字资产
 ```code
-$asset = array(
-    "issuer": "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
-    "owner": "did:axn:65tGAKCERh95uHllllllRU",(必填)
-    "asset_id": "did:axn:90tGAKCERh95uHhhsdljRU",(必填)
-    "fee": {
-        "amount": 10
-    }
+$asset = new IssueAssetBody ("issuer","owner","poe")
+{
+    issuer string,(必填)
+    owner string,(必填)
+    asset_id string,(必填)
 )
-
-$signature = array(
-    "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //owner did
-    "nonce"=> "nonce",(必填) //随机数
-);
 
 $security_code //注册wallet账户返回的秘钥安全码，issuer
 
@@ -165,17 +155,12 @@ $response 为请求返回的多维数组
 
 ## 6.转让资产
 ```code
-$data = array(
-    "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
-    "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
-    "assets"=> [
-        "did:axn:c9f0a2a0-8428-49da-b606-28c66baa1423"(必填) //poe资产id
-    ]
+$data = new TransferAssetBody ("from","to","assets")
+{
+    from string,(必填)
+    to string,(必填)
+    assets array,(必填)
 )
-$signature = array(
-    "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //issuer did
-    "nonce"=> "nonce",(必填) //随机数
-);
 
 $security_code //注册wallet账户返回的秘钥安全码，from
 
@@ -201,21 +186,15 @@ $response 为请求返回的多维数组
 
 ## 7.转让数字凭证
 ```code
-$data = array(
-    "from"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填)
-    "to"=> "did:axn:21tDAKCERh95uGgKbJNHYp",(必填)
-    "tokens"=> [
-        {
-            "token_id": "1f38a7a1-2c79-465e-a4c0-0038e25c7edg",(必填)issuerCToken 返回的token_id;
-            "amount": 5,(必填)
-        }
-    ],
+$data = new TransferCTokenBody ("from","to",tokens)
+    from,(必填)
+    to,(必填)
+    tokens array(token_amount) (必填)
+    token_amount{
+        token_id string,(必填)issuerCToken 返回的token_id;
+        amount number,(必填)
+    }
 )
-
-$signature = array(
-    "did"=> "did:axn:8uQhQMGzWxR8vw5P3UWH1j",(必填) //issuer did
-    "nonce"=> "nonce",(必填) //随机数
-);
 
 $security_code //注册wallet账户返回的秘钥安全码，from
 
