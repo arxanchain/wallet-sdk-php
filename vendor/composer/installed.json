@@ -1,0 +1,64 @@
+[
+    {
+        "name": "arxanchain/php-common",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "dist": {
+            "type": "path",
+            "url": "/home/carl/workspace/src/github.com/arxanchain/php-common",
+            "reference": "7aff645beaf299cb1533264ad4b08d9d33fd7ef4",
+            "shasum": null
+        },
+        "require": {
+            "php": ">=7.0"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "arxan\\": "src/arxan"
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "song",
+                "email": "ssong@arxanculture.com"
+            }
+        ],
+        "description": "php common !"
+    },
+    {
+        "name": "arxanchain/safebox-sdk-php",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "dist": {
+            "type": "path",
+            "url": "/home/carl/workspace/src/github.com/arxanchain/safebox-sdk-php",
+            "reference": "0a871d226f41389733a8c779166594cca395ec01",
+            "shasum": null
+        },
+        "require": {
+            "arxanchain/php-common": "*"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "arxan\\": "src/arxan"
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "song",
+                "email": "ssong@arxanculture.com"
+            }
+        ],
+        "description": "safebox for php"
+    }
+]
