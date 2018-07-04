@@ -1,0 +1,33 @@
+[
+    {
+        "name": "arxanchain/php-common",
+        "version": "dev-master",
+        "version_normalized": "9999999-dev",
+        "dist": {
+            "type": "path",
+            "url": "/home/carl/workspace/src/github.com/arxanchain/php-common",
+            "reference": "d1b0f16ab54e485e6d00e0dfdd1654427d811bce",
+            "shasum": null
+        },
+        "require": {
+            "php": ">=7.0"
+        },
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "arxan\\": "src/arxan"
+            }
+        },
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "song",
+                "email": "ssong@arxanculture.com"
+            }
+        ],
+        "description": "php common !"
+    }
+]
