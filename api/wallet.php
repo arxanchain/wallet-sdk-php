@@ -74,7 +74,7 @@ class WalletClient implements WalletApi {
         $this->did = $sign_param->getCreator();
         $this->curl_post = curl_init();
         $this->curl_get = curl_init();
-        $this->ecc_client = new encrypt($cert_path,$api_key);
+        $this->ecc_client = new Encrypt($cert_path,$api_key);
         $this->sign_client = new Signature();
         $this->safebox_client = new SafeBoxClient($host,$api_key,$cert_path);
         if($sign_param == NULL){
@@ -1023,21 +1023,27 @@ class WalletClient implements WalletApi {
     private function signTxs(&$txs,$sign_param,$security_code){
         for($i = 0;$i<count($txs);$i++){
             if($txs[$i]["founder"] != $sign_param->getCreator()){
+                if($this->sign_param->getPrivateKey()== ""){
+                    return errCode["InvalidPrivateKey"];
+                }
                 $ret = $this->signTx($txs[$i],$this->sign_param);
+                if($ret != 0){
+                    return $ret;
+                }
             }else{
                 $ret = $this->getPrivateKey($sign_param->getCreator(),$security_code,$private);
                 if($ret != 0){
                     return $ret;
                 }
                 $sign_param->setPrivateKey($private);
-            }
 
-            $ret = $this->signTx($txs[$i],$sign_param);
-            if($ret !=0){
-                return $ret;
+                $ret = $this->signTx($txs[$i],$sign_param);
+                if($ret !=0){
+                    return $ret;
+                }
             }
         }
-        return 0;
+        return 0;  
     }
 
     private function signTx(&$tx,$sign_param){

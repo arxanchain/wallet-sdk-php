@@ -9,9 +9,9 @@ $host:arxan-chain wallet服务的ip与port
 $api_key:注册企业账户返回的api=key
 $cert_path:秘钥与证书目录
 $signParam{
-    $did string;
-    $nonce string;
-    $private_key string;
+    $creator string; // 企业账户id (必填)
+    $nonce string;  // 随机数   (必填)
+    $private_key string; // 企业账户私钥 (必填)
 }:账户签名对象
 
 $client = new WalletClient($host,$api_key,$cert_path,$signParam);
@@ -19,7 +19,7 @@ $client = new WalletClient($host,$api_key,$cert_path,$signParam);
 
 ## 2. 注册wallet账户
 ```code
-$register = new RegisterWalletBody("Organization","culture243","SONGsong110"); 
+$register = new RegisterWalletBody("type","access","secret"); 
     type string, //类型(必填)
     access string, //账户名
     secret string, //账户密码(必填)
@@ -52,18 +52,18 @@ $response 为请求返回的多维数组
 
 ## 3.创建数字资产存证
 ```code
-$poe = new POEBody("宋松测试1",$register_res1["Payload"]["id"]);
-    name string(必填)
-    owner string(必填)
-    parent_id string
+$poe = new POEBody("name",owner);
+    name string(必填) // 资产名称
+    owner string(必填)  // 所有者
+    parent_id string    
     hash" string
     metadata string
 );
 
 $signature{
-    creator string;
-    nonce string;
-    private_key string; 
+    creator string; // 创建者
+    nonce string;   // 随机数
+    private_key string;     // 私钥(可以不传)
 }
 
 $security_code //注册wallet账户返回的秘钥安全码，owner
@@ -126,9 +126,9 @@ $response 为请求返回的多维数组
 ```code
 $asset = new IssueAssetBody ("issuer","owner","poe")
 {
-    issuer string,(必填)
-    owner string,(必填)
-    asset_id string,(必填)
+    issuer string,(必填) // 发行者
+    owner string,(必填) // 所有者
+    asset_id string,(必填)  // 资产
 )
 
 $security_code //注册wallet账户返回的秘钥安全码，issuer
@@ -159,7 +159,7 @@ $data = new TransferAssetBody ("from","to","assets")
 {
     from string,(必填)
     to string,(必填)
-    assets array,(必填)
+    assets array,(必填) // 资产数组
 )
 
 $security_code //注册wallet账户返回的秘钥安全码，from
@@ -189,7 +189,7 @@ $response 为请求返回的多维数组
 $data = new TransferCTokenBody ("from","to",tokens)
     from,(必填)
     to,(必填)
-    tokens array(token_amount) (必填)
+    tokens array(token_amount) (必填) // token 数组
     token_amount{
         token_id string,(必填)issuerCToken 返回的token_id;
         amount number,(必填)

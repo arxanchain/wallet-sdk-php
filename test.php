@@ -5,17 +5,19 @@ require_once (__DIR__ . "/../php-common/structs/struct.php");
 
 $host = "http://103.67.193.150:15007";
 $api_key = "eZUDImzTp1528874024";
-$cert_path = "/home/ssong/workspace/src/github.com/arxanchain/php-common/cryption/cert/client_certs";
+$cert_path = "/home/carl/workspace/src/github.com/arxanchain/php-common/cryption/cert/client_certs";
 $did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
+$private = "9aCdmQMO2+m0hHz9E0L87TSg6yn27gJhUdST4S7zfMgKG7cfPwfREJJfCHAEIa53bV82WJvJ5xvCvtkD/MbPLA==";
 
 
-$client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",""));
+//$client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",""));
+$client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",$private));
 
 //$client->setHeader("Bc-Invoke-Mode","sync");
 //$client->setHeader("Callback-Url","http://121.69.8.22:8066");
 
-$register_body1 = new RegisterWalletBody("Organization","culture243","SONGsong110");
-$register_body2 = new RegisterWalletBody("Organization","culture245","SONGsong110");
+$register_body1 = new RegisterWalletBody("Organization","culture275","SONGsong110");
+$register_body2 = new RegisterWalletBody("Organization","culture276","SONGsong110");
 
 $client->register($register_body1,$register_res1);
 echo "register wallet1 info:\n";
