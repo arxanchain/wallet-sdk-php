@@ -106,7 +106,7 @@ class WalletClient implements WalletApi {
             return;
         }
 
-        if($key != "Bc-Invoke-Mode" && $value != "Callback-Url"){
+        if($key != "Bc-Invoke-Mode" && $key != "Callback-Url"){
             return;
         }
 
