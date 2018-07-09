@@ -8,7 +8,7 @@ use arxan\structs\{SignParam,RegisterWalletBody,POEBody,IssueCTokenBody,IssueAss
 
 $host = "http://103.67.193.150:15007";
 $api_key = "eZUDImzTp1528874024";
-$cert_path = "/home/carl/workspace/src/github.com/arxanchain/php-common/cert/client_certs";
+$cert_path = __DIR__ . "/cert/client_certs";
 $did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
 $private = "9aCdmQMO2+m0hHz9E0L87TSg6yn27gJhUdST4S7zfMgKG7cfPwfREJJfCHAEIa53bV82WJvJ5xvCvtkD/MbPLA==";
 
