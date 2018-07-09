@@ -18,9 +18,12 @@ $client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",
 
 //$client->setHeader("Bc-Invoke-Mode","sync");
 //$client->setHeader("Callback-Url","http://121.69.8.22:8066");
+$num = 0 + rand(1,1000);
+$account1 = "culture123" . $num;
+$account2 = "culture123" . ($num+1);
 
-$register_body1 = new RegisterWalletBody("Organization","culture283","SONGsong110");
-$register_body2 = new RegisterWalletBody("Organization","culture284","SONGsong110");
+$register_body1 = new RegisterWalletBody("Organization",$account1,"SONGsong110");
+$register_body2 = new RegisterWalletBody("Organization",$account2,"SONGsong110");
 
 $client->register($register_body1,$register_res1);
 echo "register wallet1 info:\n";
