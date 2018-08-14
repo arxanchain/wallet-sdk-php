@@ -122,7 +122,7 @@ class WalletClient implements WalletApi {
             return errCode["InvalidParamsErrCode"];
         }
 
-        if($register_body->getType() == ""){
+        if($register_body->getType() == 0){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
@@ -137,6 +137,7 @@ class WalletClient implements WalletApi {
             $response = errorResponse($ret);
             return $ret;
         }
+         
 
         curl_setopt($this->curl_post, CURLOPT_CUSTOMREQUEST, 'POST');
         curl_setopt($this->curl_post, CURLOPT_POSTFIELDS, $request);
@@ -149,6 +150,13 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidRequestBody"]);
             return errCode["InvalidRequestBody"];
         }
+        
+        // 如果直接给的json数据则不需要解密直接返回 
+        $errData= json_decode($res,TRUE);
+        if (!empty($errData)){
+            $response = $errData;
+            return $errData["ErrCode"];
+        } 
 
         $ret = $this->ecc_client->DecryptAndVerify($res,$data);
         if ($ret != 0){
@@ -230,6 +238,13 @@ class WalletClient implements WalletApi {
             return errCode["InvalidRequestBody"];
         }
 
+        // 如果直接给的json数据则不需要解密直接返回 
+        $errData= json_decode($res,TRUE);
+        if (!empty($errData)){
+            $response = $errData;
+            return $errData["ErrCode"];
+        } 
+
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if($ret !=0){
             $response = $data;
@@ -276,7 +291,6 @@ class WalletClient implements WalletApi {
             return errCode["InvalidRequestBody"];
         }
 
-        echo "res = \n",$res,"\n";
         // 加密与验签
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
@@ -728,6 +742,13 @@ class WalletClient implements WalletApi {
             return errCode["InvalidRequestBody"];
         }
 
+        // 如果直接给的json数据则不需要解密直接返回 
+        $errData= json_decode($res,TRUE);
+        if (!empty($errData)){
+            $response = $errData;
+            return $errData["ErrCode"];
+        } 
+
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
             $response = $data;
@@ -801,12 +822,19 @@ class WalletClient implements WalletApi {
             return errCode["InvalidRequestBody"];
         }
 
+        // 如果直接给的json数据则不需要解密直接返回 
+        $errData= json_decode($res,TRUE);
+        if (!empty($errData)){
+            $response = $errData;
+            return $errData["ErrCode"];
+        } 
+
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
             $response = $data;
             return $ret;
         }
-
+        
         $response = $data;
         return $response["ErrCode"];
     }
@@ -873,6 +901,13 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidRequestBody"]);
             return errCode["InvalidRequestBody"];
         }
+
+        // 如果直接给的json数据则不需要解密直接返回 
+        $errData= json_decode($res,TRUE);
+        if (!empty($errData)){
+            $response = $errData;
+            return $errData["ErrCode"];
+        } 
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){
@@ -948,6 +983,13 @@ class WalletClient implements WalletApi {
             $response = errorResponse(errCode["InvalidRequestBody"]);
             return errCode["InvalidRequestBody"];
         }
+
+        // 如果直接给的json数据则不需要解密直接返回 
+        $errData= json_decode($res,TRUE);
+        if (!empty($errData)){
+            $response = $errData;
+            return $errData["ErrCode"];
+        } 
 
         $ret = $this->ecc_client->decryptAndVerify($res,$data);
         if ($ret != 0){

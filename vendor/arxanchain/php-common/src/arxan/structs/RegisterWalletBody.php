@@ -3,7 +3,7 @@
 namespace arxan\structs;
 
 class RegisterWalletBody {
-    var $type = "";
+    var $type = 0;
     var $access = "";
     var $phone = "";
     var $email = "";

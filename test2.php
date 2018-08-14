@@ -6,11 +6,11 @@ require_once (__DIR__ . "/vendor/autoload.php");
 use arxan\WalletClient;
 use arxan\structs\{SignParam,RegisterWalletBody,POEBody,IssueCTokenBody,IssueAssetBody,TransferAssetBody,TransferCTokenBody,TokenAmount};
 
-$host = "http://139.198.124.163:49143";
-$api_key = "Qs5osyxHp1534234207";
+$host = "http://103.67.193.150:15007";
+$api_key = "eZUDImzTp1528874024";
 $cert_path = __DIR__ . "/cert/client_certs";
-$did = "did:axn:358085b8-782d-406c-8f65-15d77bbe4772";
-$private = "o2zMi96J1teDwXBerFstAyz5dQLKZFNFdbrvVEbUgnujP5zrKcfIM73Y1jkMZHoexc1y7VirYffRJv9sZyfGhw==";
+$did = "did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042";
+$private = "9aCdmQMO2+m0hHz9E0L87TSg6yn27gJhUdST4S7zfMgKG7cfPwfREJJfCHAEIa53bV82WJvJ5xvCvtkD/MbPLA==";
 
 
 //$client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",""));
@@ -18,16 +18,18 @@ $client = new WalletClient($host,$api_key,$cert_path,new SignParam($did,"nonce",
 
 //$client->setHeader("Bc-Invoke-Mode","sync");
 //$client->setHeader("Callback-Url","http://121.69.8.22:8066");
+/*
 $num = 0 + rand(1,1000);
 $account1 = "culture123" . $num;
 $account2 = "culture123" . ($num+1);
 
-$register_body1 = new RegisterWalletBody(2,$account1,"SONGsong110");
-
-$register_body2 = new RegisterWalletBody(2,$account2,"SONGsong110");
+$register_body1 = new RegisterWalletBody("Organization",$account1,"SONGsong110");
+$register_body2 = new RegisterWalletBody("Organization",$account2,"SONGsong110");
 
 $client->register($register_body1,$register_res1);
+echo "register wallet1 info:\n";
 var_dump($register_res1);
+echo "\n";
 
 $client->register($register_body2,$register_res2);
 echo "register wallet1 info:\n";
@@ -36,28 +38,34 @@ echo "\n";
 
 $scode1 = $register_res1["Payload"]["security_code"]; 
 $scode2 = $register_res2["Payload"]["security_code"]; 
+ */
 
 //echo "res:\n",$res,"\n";
 
+$scode1 = "我我爱自祖"; 
 
-$poe1 = new POEBody("宋松测试1",$register_res1["Payload"]["id"]); 
+$poe1 = new POEBody("宋松测试1","did:axn:06a91b00-8be7-4ce7-8852-b6c73a9334d4"); 
 
-$sign1 = new SignParam($register_res1["Payload"]["id"],"nonce","");
-$sign2 = new SignParam($register_res2["Payload"]["id"],"nonce","");
+$sign1 = new SignParam("did:axn:06a91b00-8be7-4ce7-8852-b6c73a9334d4","nonce","");
+//$sign2 = new SignParam($register_res2["Payload"]["id"],"nonce","");
 
 //echo "sign1:\n";
 //var_dump($sign1);
 //echo "\n";
 
 // 创建资产
+$client->setHeader("Callback-Url","192.168.20.190");
 $ret = $client->createPOE($poe1,$sign1,$scode1,$poe_res1);
 if ($ret !=0){
     "create poe error\n";
+var_dump($poe_res1);
     return ;
 }
 echo "create poe succ :\n";
 var_dump($poe_res1);
 echo "\n";
+
+/*
 
 // 发行token
 // ...
@@ -87,16 +95,9 @@ var_dump($poe_res2);
 echo "\n";
 
 // 发行资产
-$asset= new IssueAssetBody($did,$register_res1["Payload"]["id"], $poe_res2["Payload"]["id"]);
+$asset= new IssueAssetBody("did:axn:c316b8d9-2d1a-42b8-b2f2-950eecd90042",$register_res1["Payload"]["id"], $poe_res2["Payload"]["id"]);
 
-$ret = $client->issueAsset($asset,$sign1,$scode1,$asset_res);
-
-if($ret !=0){
-    echo "issuerAsset err:\n";
-    var_dump($asset_res);
-    echo "\n";
-    return ;
-}
+$client->issueAsset($asset,$sign1,$scode1,$asset_res);
 echo "issuerAsset succ:\n";
 var_dump($asset_res);
 echo "\n";
@@ -142,4 +143,4 @@ $client->getWalletBalance($register_res2["Payload"]["id"],$wallet2);
 echo "wallet1 balance:\n";
 var_dump($wallet2);
 echo "\n";
-
+ */
