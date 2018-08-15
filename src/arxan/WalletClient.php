@@ -681,7 +681,7 @@ class WalletClient implements WalletApi {
 
     function queryBlockInfo($number,&$response){
         // count 表示从新的区块往前第几个的信息
-        if(!is_numeric($count)){
+        if(!is_numeric($number)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
