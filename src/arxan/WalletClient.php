@@ -55,7 +55,7 @@ interface WalletApi {
     //function updateKeyPair();
     
     // 获取最新的区块信息,包含区块高度
-    function queryBlockInfo($count,&$response);
+    function queryBlockInfo($number,&$response);
     // 获取交易的详细信息
     function getTxnDetail($txn_id,&$response);
 
@@ -679,14 +679,14 @@ class WalletClient implements WalletApi {
         return $response["ErrCode"];
     }
 
-    function queryBlockInfo($count,&$response){
+    function queryBlockInfo($number,&$response){
         // count 表示从新的区块往前第几个的信息
         if(!is_numeric($count)){
             $response = errorResponse(errCode["InvalidParamsErrCode"]);
             return errCode["InvalidParamsErrCode"];
         }
 
-        $url = $this->host ."/chain-monitor/v1/chain/block_list?number=" . $count;
+        $url = $this->host ."/chain-monitor/v1/chain/block_list?number=" . $number;
         $routeTag = "chain-monitor";
         $header = array();
         $header[0] = 'API-Key:' . $this->api_key;

@@ -33,11 +33,8 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
         ["id"]=> "did:axn:53915ff7-16b4-432e-b3f4-8d3cb44b5240", //分配给钱包的唯一ID
         ["endpoint"]=> "06aa7f0690ef573a9bde61d312ff54036e267e45e856571215e043862d788058", //分配给钱包的地址
-        ["key_pair"]=>NULL,
         ["created"]=> 1529906262, //创建钱包的时间戳
         ["token_id"]=> "",
         ["security_code"]=> "我是中国人", //秘钥安全码，用于检索秘钥
@@ -75,11 +72,7 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
         ["id"]=> "did:axn:c9f0a2a0-8428-49da-b606-28c66baa1423", //资产ID
-        ["endpoint"]=> "", 
-        ["key_pair"]=> {},
         ["created"]=> 1529906262, //创建资产的时间戳
         ["token_id"]=> "993773421ce32574491a86b69a001e30da11350bf162c49ff8e8e71972ca0143",//用于交易
         ["transaction_ids"]=> {
@@ -108,11 +101,7 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
         ["id"]=> "did:axn:c9f0a2a0-8428-49da-b606-28c66baa1423", //资产ID
-        ["endpoint"]=> "", 
-        ["key_pair"]=> {},
         ["created"]=> 1529906262, //创建资产的时间戳
         ["token_id"]=> "4575a3209a8d9144b59b4e8d9a87288efc8eac2d0d4a935209a64dd2cf6ab228", 发行的数字凭证ID,用于转让
         ["transaction_ids"]=> {
@@ -140,11 +129,6 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
-        ["id"]=> "", 
-        ["endpoint"]=> "", 
-        ["key_pair"]=> {},
         ["created"]=> 1529906262, //创建资产的时间戳
         ["token_id"]=> "", 
         ["transaction_ids"]=> {
@@ -171,15 +155,9 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
-        ["id"]=> "", 
-        ["endpoint"]=> "", 
-        ["key_pair"]=> {},
         ["created"]=> 0,
-        ["token_id"]=> "", 
         ["transaction_ids"]=> {
-            "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",//区块链hash
+            "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",//交易id
     }
 }
 ```
@@ -205,15 +183,9 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
-        ["id"]=> "", 
-        ["endpoint"]=> "", 
-        ["key_pair"]=> {},
         ["created"]=> 0, //创建资产的时间戳
-        ["token_id"]=> "", 发行数字资产id，用于交易
         ["transaction_ids"]=> {
-            "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",//区块链hash
+            "34b847f2f16152cdb49f122c77403e6d90890c7b5e688b962227aaa20604546c",//交易id
     }
 }
 ```
@@ -228,8 +200,6 @@ $response 为请求返回的多维数组
     ["ErrMessage"]=> "",
     ["Method"]=> "",
     ["Payload"]=> {
-        ["code"]=> 0,
-        ["message"]=> "",
         ["id"]=> "did:axn:66b16790-2668-45d8-8e35-add9609d0ae0", 
         ["endpoint"]=> "83348be84d26f0e3618d64802ac314584cf0e8243cf11975a2af440148fead16", 
         ["status"]=> "Valid",
@@ -335,12 +305,61 @@ spentTxDataHash: 已消费交易记录的数据Hash
 spentAt: 消费时间
 ```
 
-## 10.获取秘钥安全码
+## 11.获取秘钥安全码
 ```code
 $did : wallet账户id
 $client->tranfserTxn($did,$security_code); 返回值0表示正常
 $security_code = "我爱你中国", // 获取秘钥安全码
 
+```
+
+## 12. 获取区块信息
+```code
+$num : 第几个最新的区块
+$client->queryBlockInfo($num,$response); 返回值0表示正常
+$response 为请求返回的多维数组
+{
+	["ErrCode"]=> 0,
+	["ErrMessage"]=> "",
+    ["Method"]=> "",
+    ["Payload"]=> [
+		[0] => {
+			[Number] => 480
+			[channel_id] => "pubchain"
+			[current_hash] => "7XK6MDWtceJvcjHphwHjIsLQTGUc69/ia76ewUPZ5+4="
+			[previous_hash] => "rUSBBiRHhXLK++3wNEc2yl8bf1Jux4Jnj2T8EvF62uc="
+			[timestamp] =>{}
+			[transaction_number] => 2
+			[transaction_size] => 3766
+		}
+	]
+}
+
+```
+
+## 13.获取交易详细信息
+```code
+$txn_id : 交易id
+$client->getTxnDetail($txn_id,$response); 返回值0表示正常
+$response 为请求返回的多维数组
+{
+	["ErrCode"]=> 0,
+	["ErrMessage"]=> "",
+    ["Method"]=> "",
+    ["Payload"]=> [
+		[0] => {
+			[channel_id] => "pubchain"
+			[blknum] => 480
+			[txnid] => "a4477bbf6be6c2f3bc9ca41401c8516f2c1785fcdb9721479dc7df8d11154788"
+			[chaincode_id] => "pubchain-utxo:"
+			[payload_size] => 1880
+			[timestamp] => 1534319154
+			[createdat] => "0001-01-01T00:00:00Z"
+			[updateat] => "0001-01-01T00:00:00Z"
+			[DeletedAt] => NULL
+		}
+	]
+}
 ```
 
 ## 11.错误返回试例
