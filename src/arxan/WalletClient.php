@@ -53,6 +53,11 @@ interface WalletApi {
     //function deleteKeyPair();
     // 修改安全码
     //function updateKeyPair();
+    
+    // 获取最新的区块信息,包含区块高度
+    function queryBlockInfo($count,&$response);
+    // 获取交易的详细信息
+    function getTxnDetail($txn_id,&$response);
 
 }
 
@@ -672,6 +677,64 @@ class WalletClient implements WalletApi {
 
         $response = $data;
         return $response["ErrCode"];
+    }
+
+    function queryBlockInfo($count,&$response){
+        // count 表示从新的区块往前第几个的信息
+        if(!is_numeric($count)){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        $url = $this->host ."/chain-monitor/v1/chain/block_list?number=" . $count;
+        $routeTag = "chain-monitor";
+        $header = array();
+        $header[0] = 'API-Key:' . $this->api_key;
+        $header[1] = 'Route-Tag:'. $routeTag;
+        $header[2] = 'Host:'. $routeTag ;
+        
+        curl_setopt($this->curl_get, CURLOPT_HTTPHEADER, $header);
+        curl_setopt($this->curl_get, CURLOPT_URL, $url);
+        $res = curl_exec($this->curl_get);
+        if ($res == ""){
+            $response = errorResponse(errCode["InvalidRequestBody"]);
+            return errCode["InvalidRequestBody"];
+        }
+
+        // 验签解密
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0) {
+            $response = $data;
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"]; 
+    }
+
+    function getTxnDetail($txn_id,&$response){
+        if($txn_id == ""){
+            $response = errorResponse(errCode["InvalidParamsErrCode"]);
+            return errCode["InvalidParamsErrCode"];
+        }
+
+        $url = $this->host ."/chain-monitor/v1/chain/txn_detail?txn_id=" . $txn_id;
+        curl_setopt($this->curl_get, CURLOPT_URL, $url);
+        $res = curl_exec($this->curl_get);
+        if ($res == ""){
+            $response = errorResponse(errCode["InvalidRequestBody"]);
+            return errCode["InvalidRequestBody"];
+        }
+
+        // 验签解密
+        $ret = $this->ecc_client->decryptAndVerify($res,$data);
+        if ($ret != 0) {
+            $response = $data;
+            return $ret;
+        }
+
+        $response = $data;
+        return $response["ErrCode"]; 
     }
 
     function sendIssueCTokenProposal($ctoken_body,$sign_param,$security_code,&$response){
