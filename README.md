@@ -321,8 +321,8 @@ $response 为请求返回的多维数组
 {
 	["ErrCode"]=> 0,
 	["ErrMessage"]=> "",
-    ["Method"]=> "",
-    ["Payload"]=> [
+	["Method"]=> "",
+	["Payload"]=> [
 		[0] => {
 			[Number] => 480
 			[channel_id] => "pubchain"
@@ -345,8 +345,8 @@ $response 为请求返回的多维数组
 {
 	["ErrCode"]=> 0,
 	["ErrMessage"]=> "",
-    ["Method"]=> "",
-    ["Payload"]=> [
+	["Method"]=> "",
+	["Payload"]=> [
 		[0] => {
 			[channel_id] => "pubchain"
 			[blknum] => 480
@@ -362,7 +362,7 @@ $response 为请求返回的多维数组
 }
 ```
 
-## 11.错误返回试例
+## 14.错误返回试例
 ```code
 {
     ["ErrCode"]=> 1000,
