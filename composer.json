@@ -1,0 +1,21 @@
+{
+  "name": "arxanchain/wallet-sdk-php",
+  "description": "wallet php sdk!",
+  "type": "library",
+  "require": {
+    "php": ">=7.0"
+  },
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "song",
+      "email": "ssong@arxanculture.com"
+    }
+  ],
+  "minimum-stability": "stable",
+  "autoload": {
+    "psr-4": {
+      "arxan\\": "src/arxan"
+    }
+  }
+}
